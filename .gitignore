@@ -1,2 +1,4 @@
-/*/.settings/
+/javametrics/.settings/
+/javametrics/WebContent/WEB-INF/classes/
 /.metadata
+/clientdb.xml
