@@ -95,7 +95,7 @@
 <script type="text/javascript" src="js/memChart.js"></script>
 <script>
     var myurl = location.host;
-    var client = new WebSocket("ws://" + myurl + "/appmetrics-dash","appmetrics4j-dash")
+    var client = new WebSocket("ws://" + myurl + "/javametrics-dash","javametrics-dash")
 
     client.onmessage = function(message) {
         console.log("Message received: " + message.data);

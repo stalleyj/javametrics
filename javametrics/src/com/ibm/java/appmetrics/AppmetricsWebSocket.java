@@ -19,7 +19,7 @@ import com.ibm.java.appmetrics.metrics.CPUTime;
 /**
  * Websocket Endpoint implementation class EchoProtocol */
 
-@ServerEndpoint(value="/", subprotocols="appmetrics4j-dash")
+@ServerEndpoint(value="/", subprotocols="javametrics-dash")
 
 public class AppmetricsWebSocket {
     
@@ -38,7 +38,7 @@ public class AppmetricsWebSocket {
     	System.err.println("open called");
     	System.err.println("Sub protocol is: " + session.getNegotiatedSubprotocol());
     	try {
-    		session.getBasicRemote().sendText("{\"topic\": \"title\", \"payload\": {\"title\":\"Application Metrics for Java\", \"docs\": \"http://github.com/RuntimeTools/AppMetrics4j\"}}");
+    		session.getBasicRemote().sendText("{\"topic\": \"title\", \"payload\": {\"title\":\"Application Metrics for Java\", \"docs\": \"http://github.com/RuntimeTools/javametrics\"}}");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
