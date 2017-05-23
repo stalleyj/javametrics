@@ -14,8 +14,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import com.ibm.java.appmetrics.metrics.CPUTime;
-
 /**
  * Websocket Endpoint implementation class EchoProtocol */
 
@@ -67,19 +65,19 @@ public class AppmetricsWebSocket {
     	long memTotal = Runtime.getRuntime().totalMemory();
     	long memFree = Runtime.getRuntime().freeMemory();
     	long memUsed = memTotal - memFree;
+    	String message = "{\"topic\": \"memory\", \"payload\": "
+				+ "{\"time\":\"" + timeStamp + "\""
+				+ ", \"physical\": \"" + memTotal + "\""
+				+ ", \"physical_used\": \"" + memUsed + "\""
+				+ "}}";
     	openSessions.forEach((session) -> {
     		try {
-				session.getBasicRemote().sendText("{\"topic\": \"memory\", \"payload\": "
-						+ "{\"time\":\"" + timeStamp + "\""
-						+ ", \"physical\": \"" + memTotal + "\""
-						+ ", \"physical_used\": \"" + memUsed + "\""
-						+ "}}");
+				session.getBasicRemote().sendText(message);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
     	});
-    	
     }
     
 }
