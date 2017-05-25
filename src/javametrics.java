@@ -46,6 +46,7 @@ sendMessage("methoddictionary", "");//$NON-NLS-1$
   public void receiveData(String type, byte[] data)
 	{
 		String dataType;
+    System.out.println("type is " + type);
 		if (type.startsWith(CLIENT_ID)) {
 			dataType = type.substring(CLIENT_ID.length());
 		} else {
@@ -58,7 +59,14 @@ sendMessage("methoddictionary", "");//$NON-NLS-1$
       System.out.println("contents is " + contents);
 		}
 
-    System.out.println("data is " + new String(data));
+    if(type.equalsIgnoreCase("memory")) {
+      System.out.println("data is " + new String(data));
+
+
+    }
+
+
+    //System.out.println("data is " + new String(data));
 
 	}
 
