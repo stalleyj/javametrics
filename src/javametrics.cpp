@@ -46,8 +46,8 @@ struct __jdata;
 /*########################################################################################################################*/
 /*########################################################################################################################*/
 /*########################################################################################################################*/
-static const char* HEALTHCENTER_PROPERTIES_PREFIX =
-		"com.ibm.java.diagnostics.healthcenter.";
+static const char* JAVAMETRICS_PROPERTIES_PREFIX =
+		"javametrics.";
 
 int launchAgent();
 void initialiseProperties(const std::string &options);
@@ -126,6 +126,8 @@ JNIEXPORT jint JNICALL
 Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
 	IBMRAS_DEBUG(debug, "OnLoad");
 	jint rc = 0;
+	std::cout << "Agent_Onload called\n";
+
 	if (!agentStarted) {
 		rc = initialiseAgent(vm, options, reserved, 0);
 		agentStarted=true;
@@ -149,7 +151,7 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 	jvmtiExtensionFunctionInfo * fi;
 	jvmtiExtensionEventInfo * ei;
 	jvmtiParamInfo * pi;
-
+	std::cout << "initialiseAgent called\n";
 	theVM = vm;
 	tDPP.theVM = vm;
 	if (options == NULL) {
@@ -167,23 +169,6 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 
 	(void) memset(&cap, 0, sizeof(cap/*jvmtiCapabilities*/));
 
-	cap.can_get_owned_monitor_info = 1;
-	cap.can_get_current_contended_monitor = 1;
-
-#if defined(_ZOS)
-#pragma convert("ISO8859-1")
-#endif
-	std::string s2 = "disableCH";
-	if(strstr(agentOptions.c_str(),s2.c_str()))
-	{
-		IBMRAS_DEBUG(debug, "classHistogram disabled");
-	} else {
-		/* enable tagging of objects required for classhistogram data*/
-	    cap.can_tag_objects = 1;
-	}
-#if defined(_ZOS)
-#pragma convert(pop)
-#endif
 
 	rc = pti->AddCapabilities(&cap);
 	if (rc != JVMTI_ERROR_NONE) {
@@ -204,14 +189,7 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 
 	/* Cleanup after GetExtensionFunctions while extracting information */
 
-	tDPP.setTraceOption = 0;
-	tDPP.jvmtiRegisterTraceSubscriber = 0;
-	tDPP.jvmtiDeregisterTraceSubscriber = 0;
-	tDPP.jvmtiGetTraceMetadata = 0;
-	tDPP.jvmtiGetMethodAndClassNames = 0;
-	tDPP.jvmtiFlushTraceData = 0;
-	tDPP.jvmtiTriggerVmDump = 0;
-	tDPP.getJ9method = 0;
+
 	tDPP.pti = pti;
 
 #if defined(_ZOS)
@@ -219,44 +197,6 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 #endif
 	fi = exfn;
 	for (i = 0; i < xcnt; i++) {
-		if (0 == strcmp(fi->id, COM_IBM_REGISTER_TRACE_SUBSCRIBER)) {
-			tDPP.jvmtiRegisterTraceSubscriber = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_DEREGISTER_TRACE_SUBSCRIBER)) {
-			tDPP.jvmtiDeregisterTraceSubscriber = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_TRACE_METADATA)) {
-			tDPP.jvmtiGetTraceMetadata = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_DUMP)) {
-			tDPP.jvmtiSetVmDump = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_QUERY_VM_DUMP)) {
-			tDPP.jvmtiQueryVmDump = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_RESET_VM_DUMP)) {
-			tDPP.jvmtiResetVmDump = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_MEMORY_CATEGORIES)) {
-			tDPP.jvmtiGetMemoryCategories = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_METHOD_AND_CLASS_NAMES)) {
-			tDPP.jvmtiGetMethodAndClassNames = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_FLUSH_TRACE_DATA)) {
-			tDPP.jvmtiFlushTraceData = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_J9METHOD)) {
-			tDPP.getJ9method = fi->func; /* j9Method ID lookup*/
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_TRACE)) {
-			tDPP.setTraceOption = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_JLM_DUMP)) {
-			tDPP.dumpVMLockMonitor = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_JLM)) {
-			tDPP.setVMLockMonitor = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_REGISTER_VERBOSEGC_SUBSCRIBER)) {
-			tDPP.verboseGCsubscribe = fi->func;
-		} else if (0
-				== strcmp(fi->id, COM_IBM_DEREGISTER_VERBOSEGC_SUBSCRIBER)) {
-			tDPP.verboseGCunsubscribe = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_TRIGGER_VM_DUMP)) {
-			tDPP.jvmtiTriggerVmDump = fi->func;
-		}
-#if defined(_ZOS)
-#pragma convert(pop)
-#endif
-
 		/* Cleanup */
 		pi = fi->params;
 
@@ -306,10 +246,6 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 	cb.VMInit = cbVMInit;
 	cb.VMDeath = cbVMDeath;
 
-	pti->SetEventCallbacks(&cb, sizeof(cb));
-	pti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_INIT, NULL);
-	pti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_DEATH, NULL);
-
 	addPlugins();
 
 	IBMRAS_DEBUG_1(debug, "< initialiseAgent rc=%d", rc);
@@ -333,9 +269,11 @@ void getHCProperties(const std::string &options) {
 
 	jint rc = theVM->GetEnv((void **) &ourEnv, JNI_VERSION);
 	if (rc < 0 || NULL == ourEnv) {
+		std::cout << "getEnv failed\n";
 		IBMRAS_DEBUG(warning, "getEnv failed");
 		return;
 	}
+	std::cout << "getHCProperties\n";
 
 	IBMRAS_DEBUG(debug, "Calling FindClass");
 #if defined(_ZOS)
@@ -348,6 +286,7 @@ void getHCProperties(const std::string &options) {
 #pragma convert(pop)
 #endif
 	if (ExceptionCheck(ourEnv) || hcoptsClass == NULL) {
+		std::cout << "could not find HealthCenterOptionHandler\n";
 		IBMRAS_DEBUG(warning, "could not find HealthCenterOptionHandler")
 		return;
 	}
@@ -361,6 +300,7 @@ void getHCProperties(const std::string &options) {
 #pragma convert(pop)
 #endif
 	if (ExceptionCheck(ourEnv) || getPropertiesMethod == NULL) {
+		std::cout << "could not find getProperties method\n";
 		IBMRAS_DEBUG(warning, "could not find getProperties method")
 		return;
 	}
@@ -415,6 +355,8 @@ void getHCProperties(const std::string &options) {
 #endif
 
 	if (ExceptionCheck(ourEnv) || hcprops == NULL) {
+
+		std::cout << "No healthcenter.properties found\n";
 		IBMRAS_DEBUG(warning, "No healthcenter.properties found")
 		return;
 	}
@@ -452,10 +394,10 @@ void getHCProperties(const std::string &options) {
 
 	std::string agentPropertyPrefix = agent->getAgentPropertyPrefix();
 	std::list < std::string > hcPropKeys = theProps.getKeys(
-			HEALTHCENTER_PROPERTIES_PREFIX);
+			JAVAMETRICS_PROPERTIES_PREFIX);
 	for (std::list<std::string>::iterator i = hcPropKeys.begin();
 			i != hcPropKeys.end(); ++i) {
-		std::string key = i->substr(strlen(HEALTHCENTER_PROPERTIES_PREFIX));
+		std::string key = i->substr(strlen(JAVAMETRICS_PROPERTIES_PREFIX));
 		if (key.length() > 0) {
 			std::string newKey = agentPropertyPrefix + key;
 			if (!theProps.exists(newKey)) {
@@ -543,7 +485,7 @@ void addAPIPlugin() {
 
 	std::string agentLibPath =
 			ibmras::common::util::LibraryUtils::getLibraryDir(
-					"healthcenter.dll", (void*) launchAgent);
+					"javametrics.dll", (void*) launchAgent);
 
 	if (agentLibPath.length() == 0) {
 		agentLibPath = agent->getProperty("com.ibm.system.agent.path");
@@ -569,6 +511,7 @@ void addAPIPlugin() {
 		agentLibPath = agentRemotePath + relativeLibPath;
 	}
 
+  std::cout << "agentRemotePath is " << agentRemotePath << "\n";
 	agent->addPlugin(agentLibPath, "hcapiplugin");
 
 	registerListener =
@@ -590,12 +533,7 @@ void addAPIPlugin() {
 	if (tDPP.pti == NULL) {
 		IBMRAS_DEBUG(debug, "tDPP.pti is null");
 	}
-
 	IBMRAS_DEBUG(debug, "Adding plugins");
-
-
-
-
 }
 
 void initialiseProperties(const std::string &options) {
@@ -611,7 +549,7 @@ void initialiseProperties(const std::string &options) {
 int launchAgent() {
 
 	agent = ibmras::monitoring::agent::Agent::getInstance();
-
+	std::cout << "launchAgent called\n";
 	if (agent->isHeadlessRunning()) {
 		return -2;
 	}
@@ -648,11 +586,6 @@ int launchAgent() {
 	return 0;
 }
 
-JNIEXPORT void JNICALL
-Java_com_ibm_java_diagnostics_healthcenter_agent_mbean_HealthCenter_isLoaded(
-		JNIEnv *env, jclass clazz) {
-	IBMRAS_DEBUG(debug,
-			"Java_com_ibm_java_diagnostics_healthcenter_agent_mbean_HealthCenter_isLoaded called");}
 
 void sendMsg(const char *sourceId, uint32 size, void *data) {
 	bool attachFlag = false;
@@ -694,19 +627,22 @@ void sendMsg(const char *sourceId, uint32 size, void *data) {
 
 extern "C" {
 JNIEXPORT void JNICALL
-Java_com_ibm_java_diagnostics_healthcenter_impl_marshalling_LocalNativeConnectionDataImpl_regListener(JNIEnv *env, jclass clazz, jobject obj) {
+Java_javametrics_regListener(JNIEnv *env, jclass clazz, jobject obj) {
 	api_callback = env->NewGlobalRef(obj);
 	registerListener(&sendMsg);
+	std::cout << "Java_javametrics_regListener called\n";
 }
 
 JNIEXPORT void JNICALL
-Java_com_ibm_java_diagnostics_healthcenter_impl_marshalling_LocalNativeConnectionDataImpl_deregListener(JNIEnv *env, jobject obj) {
+Java_javametrics_deregListener(JNIEnv *env, jobject obj) {
+	std::cout << "Java_javametrics_deregListener called\n";
 	deregisterListener();
 }
 
 JNIEXPORT void JNICALL
-Java_com_ibm_java_diagnostics_healthcenter_impl_marshalling_LocalNativeConnectionDataImpl_sendMessage(JNIEnv *env, jobject obj, jstring topic, jbyteArray ident) {
+Java_javametrics_sendMessage(JNIEnv *env, jobject obj, jstring topic, jbyteArray ident) {
 
+	std::cout << "Java_javametrics_sendMessage called\n";
 	const char *s = env->GetStringUTFChars(topic,NULL);
 	if (s) {
 		jboolean isCopy;
