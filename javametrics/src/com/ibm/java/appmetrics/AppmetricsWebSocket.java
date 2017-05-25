@@ -29,6 +29,8 @@ public class AppmetricsWebSocket {
         super();
         exec = Executors.newSingleThreadScheduledExecutor();
         exec.scheduleAtFixedRate( this::emitMemoryUsage, 2, 2, TimeUnit.SECONDS);
+        exec.scheduleAtFixedRate( this::emitCPUUsage, 2, 2, TimeUnit.SECONDS);
+        exec.scheduleAtFixedRate( this::emitMemoryPoolUsage, 2, 2, TimeUnit.SECONDS);
     }
 
     @OnOpen
@@ -38,7 +40,6 @@ public class AppmetricsWebSocket {
     	try {
     		session.getBasicRemote().sendText("{\"topic\": \"title\", \"payload\": {\"title\":\"Application Metrics for Java\", \"docs\": \"http://github.com/RuntimeTools/javametrics\"}}");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	openSessions.add(session);
@@ -74,10 +75,53 @@ public class AppmetricsWebSocket {
     		try {
 				session.getBasicRemote().sendText(message);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
     	});
+    }
+    
+    private void emitCPUUsage() {
+    	long timeStamp = System.currentTimeMillis();
+    	double process = CPUDataProvider.getProcessCpuLoad();
+    	double system = CPUDataProvider.getSystemCpuLoad();
+    	if(system >= 0 && process >= 0) {
+	    	String message = "{\"topic\": \"cpu\", \"payload\": "
+					+ "{\"time\":\"" + timeStamp + "\""
+					+ ", \"system\": \"" + system + "\""
+					+ ", \"process\": \"" + process + "\""
+					+ "}}";
+	    	openSessions.forEach((session) -> {
+	    		try {
+					session.getBasicRemote().sendText(message);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    	
+	    	});
+    	}
+    }
+    
+    private void emitMemoryPoolUsage() {
+    	long timeStamp = System.currentTimeMillis();
+    	long usedHeapAfterGC = MemoryPoolDataProvider.getUsedHeapAfterGC();
+    	long usedNative = MemoryPoolDataProvider.getNativeMemory();
+    	long usedHeap = MemoryPoolDataProvider.getHeapMemory();
+    	if(usedHeapAfterGC >= 0) { // check that some data is available
+	    	String message = "{\"topic\": \"memoryPools\", \"payload\": "
+					+ "{\"time\":\"" + timeStamp + "\""
+					+ ", \"usedHeapAfterGC\": \"" + usedHeapAfterGC + "\""
+					+ ", \"usedHeap\": \"" + usedHeap + "\""
+					+ ", \"usedNative\": \"" + usedNative + "\""
+					+ "}}";
+	    	openSessions.forEach((session) -> {
+	    		try {
+					session.getBasicRemote().sendText(message);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    	
+	    	});
+    	}
     }
     
 }

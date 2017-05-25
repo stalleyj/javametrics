@@ -46,6 +46,9 @@
             <div class="col-md-4" id="memDiv1"></div>
             <div class="col-md-4" id="envDiv"></div>        
         </div>
+        <div class="row">
+            <div class="col-md-6" id="memPoolsDiv"></div>
+        </div>
     </div>
 
 <script>
@@ -63,8 +66,10 @@
     },
     canvasWidth = $("#cpuDiv1").width() - 8, // -8 for margins and borders
     httpCanvasWidth = $("#httpDiv1").width() - 8,
+    memPoolsCanvasWidth = $("#memPoolsDiv").width() - 8,
     graphWidth = canvasWidth - margin.left - margin.right,
     httpGraphWidth = httpCanvasWidth - margin.left - margin.right,
+    memPoolsGraphWidth = memPoolsCanvasWidth - margin.left - margin.right,
     canvasHeight = 250,
     tallerGraphHeight = canvasHeight - margin.top - margin.shortBottom,
     graphHeight = canvasHeight - margin.top - margin.bottom;
@@ -93,6 +98,7 @@
 <script type="text/javascript" src="js/httpRequestsChart.js"></script>
 <script type="text/javascript" src="js/httpTop5.js"></script>
 <script type="text/javascript" src="js/memChart.js"></script>
+<script type="text/javascript" src="js/memPoolsChart.js"></script>
 <script>
     var myurl = location.host;
     
@@ -125,6 +131,9 @@
             case 'title' :
                 updateHeader(payload);
                 break;
+            case 'memoryPools':
+                updateMemPoolsData(payload);
+                break;
 
         }
     }
@@ -134,14 +143,17 @@
 
     function resize() {
         canvasWidth = $("#cpuDiv1").width() - 8,
-        httpCanvasWidth = $("#httpDiv1").width() - 8,
-        graphWidth = canvasWidth - margin.left - margin.right,
-        httpGraphWidth = httpCanvasWidth - margin.left - margin.right;
+        httpCanvasWidth = $("#httpDiv1").width() - 8,,
+    	memPoolsCanvasWidth = $("#memPoolsDiv").width() - 8,
+    	graphWidth = canvasWidth - margin.left - margin.right,
+    	httpGraphWidth = httpCanvasWidth - margin.left - margin.right,
+    	memPoolsGraphWidth = memPoolsCanvasWidth - margin.left - margin.right,
         resizeCPUChart();
         resizeHttpChart();
         resizeHttpThroughputChart();
         resizeHttpTop5Chart();
         resizeMemChart();
+        resizeMemPoolsChart();
         resizeEnvTable();
     }
 

@@ -183,8 +183,8 @@ function updateMemData(memRequest) {
 
         var d = data;
         d.date = new Date(+d.time);
-        d.system  = +d.physical_used  / (1024 * 1024);
-        d.process  = +d.physical  / (1024 * 1024);
+        d.system  = +d.physical  / (1024 * 1024);
+        d.process  = +d.physical_used  / (1024 * 1024);
 
         var _memProcessLatest = Math.round(d.process);
         // Update gauge if loaded
