@@ -1,4 +1,9 @@
-/javametrics/.settings/
-/javametrics/WebContent/WEB-INF/classes/
+output
+*.asm
+core*.*
+/src/.settings/
+/src/WebContent/WEB-INF/classes/
 /.metadata
 /clientdb.xml
+
+/build/
