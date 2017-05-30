@@ -549,7 +549,7 @@ javainstall: java
 	mkdir -p ${INSTALL_DIR}/plugins
 	mkdir -p ${INSTALL_DIR}/libs
 	${COPY_CONNECTOR}
-	cp src/properties/java/healthcenter.properties ${INSTALL_DIR}
+	cp src/properties/javametrics.properties ${INSTALL_DIR}
 	cp ${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT} ${INSTALL_DIR}
 	cp ${PLUGIN_OUT}/*.${LIB_EXT} ${INSTALL_DIR}/plugins
 	@echo "-----------------------------------------------------------------------------------------------------------------------"
