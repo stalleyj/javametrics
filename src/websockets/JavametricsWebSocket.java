@@ -53,16 +53,18 @@ public class JavametricsWebSocket {
 
 		// Need to request the method dictionary
 		sendMessage("methoddictionary", "");//$NON-NLS-1$
-		System.out.println("press enter key to exit");
-		try {
-			System.in.read();
-		} catch (Exception e) {
-		}
 
 		exec = Executors.newSingleThreadScheduledExecutor();
 		exec.scheduleAtFixedRate(this::emitMemoryUsage, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitCPUUsage, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitMemoryPoolUsage, 2, 2, TimeUnit.SECONDS);
+
+//		System.out.println("press enter key to exit");
+//		try {
+//			System.in.read();
+//		} catch (Exception e) {
+//		}
+
 	}
 
 	@OnOpen

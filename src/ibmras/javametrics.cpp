@@ -60,8 +60,8 @@ struct __jdata;
 /*########################################################################################################################*/
 /*########################################################################################################################*/
 /*########################################################################################################################*/
-static const char* HEALTHCENTER_PROPERTIES_PREFIX =
-		"com.ibm.java.diagnostics.healthcenter.";
+static const char* JAVAMETRICS_PROPERTIES_PREFIX =
+		"com.ibm.javametrics.";
 
 int launchAgent();
 void initialiseProperties(const std::string &options);
@@ -178,39 +178,6 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 	ibmras::common::memory::setDefaultMemoryManager(
 			new ibmras::vm::java::JVMTIMemoryManager(pti));
 
-	/*----------- Add thread capabilities ----------------------*/
-
-	(void) memset(&cap, 0, sizeof(cap/*jvmtiCapabilities*/));
-
-	cap.can_get_owned_monitor_info = 1;
-	cap.can_get_current_contended_monitor = 1;
-
-#if defined(_ZOS)
-#pragma convert("ISO8859-1")
-#endif
-	std::string s2 = "disableCH";
-	if(strstr(agentOptions.c_str(),s2.c_str()))
-	{
-		IBMRAS_DEBUG(debug, "classHistogram disabled");
-	} else {
-		/* enable tagging of objects required for classhistogram data*/
-	    cap.can_tag_objects = 1;
-	}
-#if defined(_ZOS)
-#pragma convert(pop)
-#endif
-
-	rc = pti->AddCapabilities(&cap);
-	if (rc != JVMTI_ERROR_NONE) {
-		if (rc != JVMTI_ERROR_NOT_AVAILABLE) {
-			IBMRAS_DEBUG_1(debug, "AddCapabilities failed: rc = %d", rc);
-		}
-	}
-
-	/*--------------------------------------
-	 Manage Extension Functions
-	 --------------------------------------*/
-
 	rc = pti->GetExtensionFunctions(&xcnt, &exfn);
 
 	if (JVMTI_ERROR_NONE != rc) {
@@ -218,73 +185,12 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 	}
 
 	/* Cleanup after GetExtensionFunctions while extracting information */
-
-	tDPP.setTraceOption = 0;
-	tDPP.jvmtiRegisterTraceSubscriber = 0;
-	tDPP.jvmtiDeregisterTraceSubscriber = 0;
-	tDPP.jvmtiGetTraceMetadata = 0;
-	tDPP.jvmtiGetMethodAndClassNames = 0;
-	tDPP.jvmtiFlushTraceData = 0;
-	tDPP.jvmtiTriggerVmDump = 0;
-	tDPP.getJ9method = 0;
 	tDPP.pti = pti;
 
 #if defined(_ZOS)
 #pragma convert("ISO8859-1")
 #endif
 	fi = exfn;
-	for (i = 0; i < xcnt; i++) {
-		if (0 == strcmp(fi->id, COM_IBM_REGISTER_TRACE_SUBSCRIBER)) {
-			tDPP.jvmtiRegisterTraceSubscriber = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_DEREGISTER_TRACE_SUBSCRIBER)) {
-			tDPP.jvmtiDeregisterTraceSubscriber = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_TRACE_METADATA)) {
-			tDPP.jvmtiGetTraceMetadata = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_DUMP)) {
-			tDPP.jvmtiSetVmDump = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_QUERY_VM_DUMP)) {
-			tDPP.jvmtiQueryVmDump = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_RESET_VM_DUMP)) {
-			tDPP.jvmtiResetVmDump = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_MEMORY_CATEGORIES)) {
-			tDPP.jvmtiGetMemoryCategories = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_METHOD_AND_CLASS_NAMES)) {
-			tDPP.jvmtiGetMethodAndClassNames = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_FLUSH_TRACE_DATA)) {
-			tDPP.jvmtiFlushTraceData = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_J9METHOD)) {
-			tDPP.getJ9method = fi->func; /* j9Method ID lookup*/
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_TRACE)) {
-			tDPP.setTraceOption = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_JLM_DUMP)) {
-			tDPP.dumpVMLockMonitor = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_JLM)) {
-			tDPP.setVMLockMonitor = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_REGISTER_VERBOSEGC_SUBSCRIBER)) {
-			tDPP.verboseGCsubscribe = fi->func;
-		} else if (0
-				== strcmp(fi->id, COM_IBM_DEREGISTER_VERBOSEGC_SUBSCRIBER)) {
-			tDPP.verboseGCunsubscribe = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_TRIGGER_VM_DUMP)) {
-			tDPP.jvmtiTriggerVmDump = fi->func;
-		}
-#if defined(_ZOS)
-#pragma convert(pop)
-#endif
-
-		/* Cleanup */
-		pi = fi->params;
-
-		for (j = 0; j < fi->param_count; j++) {
-			pti->Deallocate((unsigned char*) pi->name);
-			pi++;
-		}
-		pti->Deallocate((unsigned char*) fi->id);
-		pti->Deallocate((unsigned char*) fi->short_description);
-		pti->Deallocate((unsigned char *) fi->params);
-		pti->Deallocate((unsigned char *) fi->errors);
-		fi++;
-	}
 	pti->Deallocate((unsigned char *) exfn);
 
 	/*--------------------------------------
@@ -467,10 +373,10 @@ void getHCProperties(const std::string &options) {
 
 	std::string agentPropertyPrefix = agent->getAgentPropertyPrefix();
 	std::list < std::string > hcPropKeys = theProps.getKeys(
-			HEALTHCENTER_PROPERTIES_PREFIX);
+			JAVAMETRICS_PROPERTIES_PREFIX);
 	for (std::list<std::string>::iterator i = hcPropKeys.begin();
 			i != hcPropKeys.end(); ++i) {
-		std::string key = i->substr(strlen(HEALTHCENTER_PROPERTIES_PREFIX));
+		std::string key = i->substr(strlen(JAVAMETRICS_PROPERTIES_PREFIX));
 		if (key.length() > 0) {
 			std::string newKey = agentPropertyPrefix + key;
 			if (!theProps.exists(newKey)) {
