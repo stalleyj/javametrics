@@ -500,41 +500,7 @@ std::string setAgentLibPathZOS() {
 #endif
 }
 
-void addMQTTPlugin() {
 
-	agent = ibmras::monitoring::agent::Agent::getInstance();
-
-	std::string agentLibPath =
-			ibmras::common::util::LibraryUtils::getLibraryDir(
-					"javametrics.dll", (void*) launchAgent);
-
-	if (agentLibPath.length() == 0) {
-		agentLibPath = agent->getProperty("com.ibm.system.agent.path");
-	}
-
-//If the agentLibPath is still empty, set the required path depending on the operating system
-	if (agentLibPath.length() == 0) {
-
-#if defined(_AIX)
-		agentLibPath = setAgentLibPathAIX();
-#elif defined(_ZOS)
-		agentLibPath = setAgentLibPathZOS();
-#endif
-
-	}
-
-//if we have a remote agent we want to change the agentLibPath here
-	std::string agentRemotePath = agent->getProperty(
-			"com.ibm.diagnostics.healthcenter.agent.path");
-	if (agentRemotePath.length() != 0) {
-		std::size_t libPos = agentLibPath.find("/lib");
-		std::string relativeLibPath = agentLibPath.substr(libPos);
-		agentLibPath = agentRemotePath + relativeLibPath;
-	}
-
-	agent->addPlugin(agentLibPath, "hcmqtt");
-
-}
 
 static std::string fileJoin(const std::string& path,
 		const std::string& filename) {
@@ -636,7 +602,6 @@ void addPlugins() {
 // properties from an initialised VM, so needs to wait until cbVMInit has been called.
 #if defined(_AIX) || defined(_ZOS)
 #else
-	addMQTTPlugin();
 	addAPIPlugin();
 #endif
 
@@ -682,35 +647,12 @@ int launchAgent() {
 	std::string agentVersion = agent->getVersion();
 	IBMRAS_LOG_1(fine, "Health Center Agent %s", agentVersion.c_str());
 	// Set connector properties based on data.collection.level
-	std::string dataCollectionLevel = agent->getAgentProperty(
-			"data.collection.level");
-	if (ibmras::common::util::equalsIgnoreCase(dataCollectionLevel,
-			"headless")) {
-		agent->setAgentProperty("headless", "on");
-		agent->setAgentProperty("mqtt", "off");
-		agent->setAgentProperty("jmx", "off");
-	} else if (ibmras::common::util::equalsIgnoreCase(dataCollectionLevel,
-			"inprocess")) {
-		agent->setAgentProperty("headless", "off");
-		agent->setAgentProperty("mqtt", "off");
-		agent->setAgentProperty("jmx", "off");
-	} else {
-		std::string jmx = agent->getAgentProperty("jmx");
-		if (jmx == "") {
-			agent->setAgentProperty("jmx", "on");
-		}
-	}
 
 	agent->start();
 
 	return 0;
 }
 
-JNIEXPORT void JNICALL
-Java_com_ibm_java_diagnostics_healthcenter_agent_mbean_HealthCenter_isLoaded(
-		JNIEnv *env, jclass clazz) {
-	IBMRAS_DEBUG(debug,
-			"Java_com_ibm_java_diagnostics_healthcenter_agent_mbean_HealthCenter_isLoaded called");}
 
 void sendMsg(const char *sourceId, uint32 size, void *data) {
 	bool attachFlag = false;
