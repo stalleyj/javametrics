@@ -22,7 +22,7 @@ HC_OUT=${JAVA_OUT}
 #-------------------------------------------------------------------------------------------
 # conditional include of connector directory
 #-------------------------------------------------------------------------------------------
-COPY_CONNECTOR=cp ${CONNECTOR_OUT}/*.${LIB_EXT} ${INSTALL_DIR}/plugins
+COPY_CONNECTOR=cp ${CONNECTOR_OUT}/*.${LIB_EXT} ${INSTALL_DIR}
 
 
 
@@ -38,7 +38,7 @@ OSTREAM_CONNECTOR_OBJS = ${CONNECTOR_OUT}/OStreamConnector.o
 TESTPLUGIN_OBJS=${PLUGIN_OUT}/plugin.o
 OSPLUGIN_OBJS=${PLUGIN_OUT}/osplugin.o ${PLUGIN_OUT}/os${OS}.o
 
-JAVA_OBJS = ${JAVA_OUT}/DumpHandler.o ${JAVA_OUT}/Util.o ${JAVA_OUT}/ClassHistogramProvider.o ${JAVA_OUT}/TraceDataProvider.o ${JAVA_OUT}/TraceReceiver.o  ${JAVA_OUT}/JMXConnector.o ${JAVA_OUT}/JMXConnectorPlugin.o ${JAVA_OUT}/healthcenter.o  ${JAVA_OUT}/JVMTIMemoryManager.o ${JAVA_OUT}/MethodLookupProvider.o ${JAVA_OUT}/EnvironmentPlugin.o ${JAVA_OUT}/ThreadsPlugin.o ${JAVA_OUT}/MemoryPlugin.o ${JAVA_OUT}/MemCountersPlugin.o ${JAVA_OUT}/CpuPlugin.o ${JAVA_OUT}/AppPlugin.o ${JAVA_OUT}/LockingPlugin.o ${HL_CONNECTOR_OBJS}
+JAVA_OBJS = ${JAVA_OUT}/DumpHandler.o ${JAVA_OUT}/Util.o ${JAVA_OUT}/ClassHistogramProvider.o ${JAVA_OUT}/TraceDataProvider.o ${JAVA_OUT}/TraceReceiver.o  ${JAVA_OUT}/JMXConnector.o ${JAVA_OUT}/JMXConnectorPlugin.o ${JAVA_OUT}/javametrics.o  ${JAVA_OUT}/JVMTIMemoryManager.o ${JAVA_OUT}/MethodLookupProvider.o ${JAVA_OUT}/EnvironmentPlugin.o ${JAVA_OUT}/ThreadsPlugin.o ${JAVA_OUT}/MemoryPlugin.o ${JAVA_OUT}/MemCountersPlugin.o ${JAVA_OUT}/CpuPlugin.o ${JAVA_OUT}/AppPlugin.o ${JAVA_OUT}/LockingPlugin.o ${HL_CONNECTOR_OBJS}
 
 ENVPLUGIN_OBJS=${PLUGIN_OUT}/envplugin.o
 CPUPLUGIN_OBJS=${PLUGIN_OUT}/cpuplugin.o
@@ -353,8 +353,8 @@ ${PLUGIN_OUT}/MemoryPlugin.o: ${SRC}/monitoring/plugins/common/memory/MemoryPlug
 #JAVA vm files which make up various JAVA shim levels
 #-------------------------------------------------------------------------------------------
 
-${JAVA_OUT}/healthcenter.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/vm/java/healthcenter.cpp
+${JAVA_OUT}/javametrics.o:
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/javametrics.cpp
 
 ${JAVA_OUT}/JVMTIMemoryManager.o:
 	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/vm/java/JVMTIMemoryManager.cpp
@@ -551,5 +551,5 @@ javainstall: java
 	${COPY_CONNECTOR}
 	cp src/properties/javametrics.properties ${INSTALL_DIR}
 	cp ${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT} ${INSTALL_DIR}
-	cp ${PLUGIN_OUT}/*.${LIB_EXT} ${INSTALL_DIR}/plugins
+	cp ${PLUGIN_OUT}/*.* ${INSTALL_DIR}
 	@echo "-----------------------------------------------------------------------------------------------------------------------"

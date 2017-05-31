@@ -533,6 +533,7 @@ bool Agent::readOnly() {
 
 void Agent::start() {
 	int result = 0;
+	std::cerr << "[Agent.cpp] start called \n";
 	IBMRAS_DEBUG(info, "Agent start : begin");
 
 	/* Receivers first as they are added to connection manager */

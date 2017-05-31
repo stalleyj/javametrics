@@ -67,13 +67,15 @@ APICONNECTORPLUGIN_DECL void pushData(const char *sendData) {
 }
 
 APICONNECTORPLUGIN_DECL void sendControl(const char* topic, unsigned int length, void* message) {
-	std::cout << "sendcontrol 1\n";
+	std::cout << "[APIConnector.cpp] sendcontrol 1 " << "topic " << topic << "\n";
 	char* nativeString = ibmras::common::util::createNativeString(topic);
-	std::cout << "sendcontrol 2\n";
+	std::cout << "[APIConnector.cpp] sendcontrol 2\n";
+	std::cout << "[APIConnector.cpp] message " << message << "\n";
+	
 	plugin::receiver->receiveMessage(std::string(nativeString), length, message);
-	std::cout << "sendcontrol 3\n";
+	std::cout << "[APIConnector.cpp] sendcontrol 3\n";
 	ibmras::common::memory::deallocate((unsigned char**)&nativeString);
-	std::cout << "sendcontrol 4\n";
+	std::cout << "[APIConnector.cpp] sendcontrol 4\n";
 }
 
 } // end extern C
