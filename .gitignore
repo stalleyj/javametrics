@@ -1,4 +1,5 @@
-output
+*.o
+/output/
 *.asm
 core*.*
 /src/.settings/
