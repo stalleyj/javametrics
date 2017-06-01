@@ -60,8 +60,8 @@ struct __jdata;
 /*########################################################################################################################*/
 /*########################################################################################################################*/
 /*########################################################################################################################*/
-static const char* HEALTHCENTER_PROPERTIES_PREFIX =
-		"com.ibm.java.diagnostics.healthcenter.";
+static const char* JAVAMETRICS_PROPERTIES_PREFIX =
+		"com.ibm.javametrics.";
 
 int launchAgent();
 void initialiseProperties(const std::string &options);
@@ -178,39 +178,6 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 	ibmras::common::memory::setDefaultMemoryManager(
 			new ibmras::vm::java::JVMTIMemoryManager(pti));
 
-	/*----------- Add thread capabilities ----------------------*/
-
-	(void) memset(&cap, 0, sizeof(cap/*jvmtiCapabilities*/));
-
-	cap.can_get_owned_monitor_info = 1;
-	cap.can_get_current_contended_monitor = 1;
-
-#if defined(_ZOS)
-#pragma convert("ISO8859-1")
-#endif
-	std::string s2 = "disableCH";
-	if(strstr(agentOptions.c_str(),s2.c_str()))
-	{
-		IBMRAS_DEBUG(debug, "classHistogram disabled");
-	} else {
-		/* enable tagging of objects required for classhistogram data*/
-	    cap.can_tag_objects = 1;
-	}
-#if defined(_ZOS)
-#pragma convert(pop)
-#endif
-
-	rc = pti->AddCapabilities(&cap);
-	if (rc != JVMTI_ERROR_NONE) {
-		if (rc != JVMTI_ERROR_NOT_AVAILABLE) {
-			IBMRAS_DEBUG_1(debug, "AddCapabilities failed: rc = %d", rc);
-		}
-	}
-
-	/*--------------------------------------
-	 Manage Extension Functions
-	 --------------------------------------*/
-
 	rc = pti->GetExtensionFunctions(&xcnt, &exfn);
 
 	if (JVMTI_ERROR_NONE != rc) {
@@ -218,73 +185,12 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 	}
 
 	/* Cleanup after GetExtensionFunctions while extracting information */
-
-	tDPP.setTraceOption = 0;
-	tDPP.jvmtiRegisterTraceSubscriber = 0;
-	tDPP.jvmtiDeregisterTraceSubscriber = 0;
-	tDPP.jvmtiGetTraceMetadata = 0;
-	tDPP.jvmtiGetMethodAndClassNames = 0;
-	tDPP.jvmtiFlushTraceData = 0;
-	tDPP.jvmtiTriggerVmDump = 0;
-	tDPP.getJ9method = 0;
 	tDPP.pti = pti;
 
 #if defined(_ZOS)
 #pragma convert("ISO8859-1")
 #endif
 	fi = exfn;
-	for (i = 0; i < xcnt; i++) {
-		if (0 == strcmp(fi->id, COM_IBM_REGISTER_TRACE_SUBSCRIBER)) {
-			tDPP.jvmtiRegisterTraceSubscriber = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_DEREGISTER_TRACE_SUBSCRIBER)) {
-			tDPP.jvmtiDeregisterTraceSubscriber = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_TRACE_METADATA)) {
-			tDPP.jvmtiGetTraceMetadata = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_DUMP)) {
-			tDPP.jvmtiSetVmDump = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_QUERY_VM_DUMP)) {
-			tDPP.jvmtiQueryVmDump = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_RESET_VM_DUMP)) {
-			tDPP.jvmtiResetVmDump = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_MEMORY_CATEGORIES)) {
-			tDPP.jvmtiGetMemoryCategories = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_METHOD_AND_CLASS_NAMES)) {
-			tDPP.jvmtiGetMethodAndClassNames = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_FLUSH_TRACE_DATA)) {
-			tDPP.jvmtiFlushTraceData = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_GET_J9METHOD)) {
-			tDPP.getJ9method = fi->func; /* j9Method ID lookup*/
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_TRACE)) {
-			tDPP.setTraceOption = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_JLM_DUMP)) {
-			tDPP.dumpVMLockMonitor = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_SET_VM_JLM)) {
-			tDPP.setVMLockMonitor = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_REGISTER_VERBOSEGC_SUBSCRIBER)) {
-			tDPP.verboseGCsubscribe = fi->func;
-		} else if (0
-				== strcmp(fi->id, COM_IBM_DEREGISTER_VERBOSEGC_SUBSCRIBER)) {
-			tDPP.verboseGCunsubscribe = fi->func;
-		} else if (0 == strcmp(fi->id, COM_IBM_TRIGGER_VM_DUMP)) {
-			tDPP.jvmtiTriggerVmDump = fi->func;
-		}
-#if defined(_ZOS)
-#pragma convert(pop)
-#endif
-
-		/* Cleanup */
-		pi = fi->params;
-
-		for (j = 0; j < fi->param_count; j++) {
-			pti->Deallocate((unsigned char*) pi->name);
-			pi++;
-		}
-		pti->Deallocate((unsigned char*) fi->id);
-		pti->Deallocate((unsigned char*) fi->short_description);
-		pti->Deallocate((unsigned char *) fi->params);
-		pti->Deallocate((unsigned char *) fi->errors);
-		fi++;
-	}
 	pti->Deallocate((unsigned char *) exfn);
 
 	/*--------------------------------------
@@ -467,10 +373,10 @@ void getHCProperties(const std::string &options) {
 
 	std::string agentPropertyPrefix = agent->getAgentPropertyPrefix();
 	std::list < std::string > hcPropKeys = theProps.getKeys(
-			HEALTHCENTER_PROPERTIES_PREFIX);
+			JAVAMETRICS_PROPERTIES_PREFIX);
 	for (std::list<std::string>::iterator i = hcPropKeys.begin();
 			i != hcPropKeys.end(); ++i) {
-		std::string key = i->substr(strlen(HEALTHCENTER_PROPERTIES_PREFIX));
+		std::string key = i->substr(strlen(JAVAMETRICS_PROPERTIES_PREFIX));
 		if (key.length() > 0) {
 			std::string newKey = agentPropertyPrefix + key;
 			if (!theProps.exists(newKey)) {
@@ -500,41 +406,7 @@ std::string setAgentLibPathZOS() {
 #endif
 }
 
-void addMQTTPlugin() {
 
-	agent = ibmras::monitoring::agent::Agent::getInstance();
-
-	std::string agentLibPath =
-			ibmras::common::util::LibraryUtils::getLibraryDir(
-					"javametrics.dll", (void*) launchAgent);
-
-	if (agentLibPath.length() == 0) {
-		agentLibPath = agent->getProperty("com.ibm.system.agent.path");
-	}
-
-//If the agentLibPath is still empty, set the required path depending on the operating system
-	if (agentLibPath.length() == 0) {
-
-#if defined(_AIX)
-		agentLibPath = setAgentLibPathAIX();
-#elif defined(_ZOS)
-		agentLibPath = setAgentLibPathZOS();
-#endif
-
-	}
-
-//if we have a remote agent we want to change the agentLibPath here
-	std::string agentRemotePath = agent->getProperty(
-			"com.ibm.diagnostics.healthcenter.agent.path");
-	if (agentRemotePath.length() != 0) {
-		std::size_t libPos = agentLibPath.find("/lib");
-		std::string relativeLibPath = agentLibPath.substr(libPos);
-		agentLibPath = agentRemotePath + relativeLibPath;
-	}
-
-	agent->addPlugin(agentLibPath, "hcmqtt");
-
-}
 
 static std::string fileJoin(const std::string& path,
 		const std::string& filename) {
@@ -636,7 +508,6 @@ void addPlugins() {
 // properties from an initialised VM, so needs to wait until cbVMInit has been called.
 #if defined(_AIX) || defined(_ZOS)
 #else
-	addMQTTPlugin();
 	addAPIPlugin();
 #endif
 
@@ -682,35 +553,12 @@ int launchAgent() {
 	std::string agentVersion = agent->getVersion();
 	IBMRAS_LOG_1(fine, "Health Center Agent %s", agentVersion.c_str());
 	// Set connector properties based on data.collection.level
-	std::string dataCollectionLevel = agent->getAgentProperty(
-			"data.collection.level");
-	if (ibmras::common::util::equalsIgnoreCase(dataCollectionLevel,
-			"headless")) {
-		agent->setAgentProperty("headless", "on");
-		agent->setAgentProperty("mqtt", "off");
-		agent->setAgentProperty("jmx", "off");
-	} else if (ibmras::common::util::equalsIgnoreCase(dataCollectionLevel,
-			"inprocess")) {
-		agent->setAgentProperty("headless", "off");
-		agent->setAgentProperty("mqtt", "off");
-		agent->setAgentProperty("jmx", "off");
-	} else {
-		std::string jmx = agent->getAgentProperty("jmx");
-		if (jmx == "") {
-			agent->setAgentProperty("jmx", "on");
-		}
-	}
 
 	agent->start();
 
 	return 0;
 }
 
-JNIEXPORT void JNICALL
-Java_com_ibm_java_diagnostics_healthcenter_agent_mbean_HealthCenter_isLoaded(
-		JNIEnv *env, jclass clazz) {
-	IBMRAS_DEBUG(debug,
-			"Java_com_ibm_java_diagnostics_healthcenter_agent_mbean_HealthCenter_isLoaded called");}
 
 void sendMsg(const char *sourceId, uint32 size, void *data) {
 	bool attachFlag = false;

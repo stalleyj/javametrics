@@ -15,22 +15,22 @@
 #include "jvmti.h"
 
 struct jvmFunctions {
-	jvmtiExtensionFunction setTraceOption;
-	jvmtiExtensionFunction jvmtiRegisterTraceSubscriber;
-	jvmtiExtensionFunction jvmtiDeregisterTraceSubscriber;
-	jvmtiExtensionFunction jvmtiGetTraceMetadata;
-	jvmtiExtensionFunction jvmtiGetMemoryCategories;
-	jvmtiExtensionFunction jvmtiGetMethodAndClassNames;
-	jvmtiExtensionFunction jvmtiFlushTraceData;
-	jvmtiExtensionFunction getJ9method;
-	jvmtiExtensionFunction jvmtiSetVmDump;
-	jvmtiExtensionFunction jvmtiQueryVmDump;
-	jvmtiExtensionFunction jvmtiResetVmDump;
-	jvmtiExtensionFunction dumpVMLockMonitor;
-	jvmtiExtensionFunction setVMLockMonitor;
-	jvmtiExtensionFunction verboseGCsubscribe;
-	jvmtiExtensionFunction verboseGCunsubscribe;
-	jvmtiExtensionFunction jvmtiTriggerVmDump;
+// 	jvmtiExtensionFunction setTraceOption;
+// 	jvmtiExtensionFunction jvmtiRegisterTraceSubscriber;
+// 	jvmtiExtensionFunction jvmtiDeregisterTraceSubscriber;
+// 	jvmtiExtensionFunction jvmtiGetTraceMetadata;
+// 	jvmtiExtensionFunction jvmtiGetMemoryCategories;
+// 	jvmtiExtensionFunction jvmtiGetMethodAndClassNames;
+// 	jvmtiExtensionFunction jvmtiFlushTraceData;
+// 	jvmtiExtensionFunction getJ9method;
+// 	jvmtiExtensionFunction jvmtiSetVmDump;
+// 	jvmtiExtensionFunction jvmtiQueryVmDump;
+// 	jvmtiExtensionFunction jvmtiResetVmDump;
+// 	jvmtiExtensionFunction dumpVMLockMonitor;
+// 	jvmtiExtensionFunction setVMLockMonitor;
+// 	jvmtiExtensionFunction verboseGCsubscribe;
+// 	jvmtiExtensionFunction verboseGCunsubscribe;
+// 	jvmtiExtensionFunction jvmtiTriggerVmDump;
 	
 	jvmtiEnv *pti;
 	JavaVM *theVM;
