@@ -1,4 +1,4 @@
-package websockets;
+package com.ibm.javametrics;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -14,8 +14,8 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import dataProviders.CPUDataProvider;
-import dataProviders.MemoryPoolDataProvider;
+import com.ibm.javametrics.dataproviders.CPUDataProvider;
+import com.ibm.javametrics.dataproviders.MemoryPoolDataProvider;
 
 /**
  * Websocket Endpoint implementation class EchoProtocol
@@ -58,12 +58,6 @@ public class JavametricsWebSocket {
 		exec.scheduleAtFixedRate(this::emitMemoryUsage, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitCPUUsage, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitMemoryPoolUsage, 2, 2, TimeUnit.SECONDS);
-
-//		System.out.println("press enter key to exit");
-//		try {
-//			System.in.read();
-//		} catch (Exception e) {
-//		}
 
 	}
 
@@ -177,11 +171,7 @@ public class JavametricsWebSocket {
 
 		if (type.equalsIgnoreCase("memory")) {
 			System.out.println("data is " + new String(data));
-
 		}
-
-		// System.out.println("data is " + new String(data));
-
 	}
 
 }

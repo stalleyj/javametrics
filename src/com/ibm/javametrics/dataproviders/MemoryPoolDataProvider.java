@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package dataProviders;
+package com.ibm.javametrics.dataproviders;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;

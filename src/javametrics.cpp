@@ -248,144 +248,6 @@ int ExceptionCheck(JNIEnv *env) {
 	}
 }
 
-void getHCProperties(const std::string &options) {
-
-	JNIEnv *ourEnv = NULL;
-
-	jint rc = theVM->GetEnv((void **) &ourEnv, JNI_VERSION);
-	if (rc < 0 || NULL == ourEnv) {
-		IBMRAS_DEBUG(warning, "getEnv failed");
-		return;
-	}
-
-	IBMRAS_DEBUG(debug, "Calling FindClass");
-#if defined(_ZOS)
-#pragma convert("ISO8859-1")
-#endif
-	jclass hcoptsClass =
-			ourEnv->FindClass(
-					"com/ibm/java/diagnostics/healthcenter/agent/mbean/HealthCenterOptionHandler");
-#if defined(_ZOS)
-#pragma convert(pop)
-#endif
-	if (ExceptionCheck(ourEnv) || hcoptsClass == NULL) {
-		IBMRAS_DEBUG(warning, "could not find HealthCenterOptionHandler")
-		return;
-	}
-	IBMRAS_DEBUG(debug, "Calling GetStaticMethodID");
-#if defined(_ZOS)
-#pragma convert("ISO8859-1")
-#endif
-	jmethodID getPropertiesMethod = ourEnv->GetStaticMethodID(hcoptsClass,
-			"getProperties", "([Ljava/lang/String;)[Ljava/lang/String;");
-#if defined(_ZOS)
-#pragma convert(pop)
-#endif
-	if (ExceptionCheck(ourEnv) || getPropertiesMethod == NULL) {
-		IBMRAS_DEBUG(warning, "could not find getProperties method")
-		return;
-	}
-
-	std::stringstream ss;
-	ss << ibmras::common::port::getProcessId();
-	std::string pid = ss.str();
-	jobjectArray applicationArgs = NULL;
-
-#if defined(_ZOS)
-	char* pidStr = ibmras::common::util::createAsciiString(pid.c_str());
-#else
-	const char* pidStr = pid.c_str();
-#endif
-
-#if defined(_ZOS)
-#pragma convert("ISO8859-1")
-#endif
-	jstring pidArg = ourEnv->NewStringUTF(pidStr);
-	if (!ExceptionCheck(ourEnv)) {
-
-		jstring opts = ourEnv->NewStringUTF(options.c_str());
-		if (!ExceptionCheck(ourEnv)) {
-
-			applicationArgs = ourEnv->NewObjectArray(2,
-					ourEnv->FindClass("java/lang/String"), NULL);
-
-			if (!ExceptionCheck(ourEnv)) {
-				ourEnv->SetObjectArrayElement(applicationArgs, 0, pidArg);
-				if (!ExceptionCheck(ourEnv)) {
-					ourEnv->SetObjectArrayElement(applicationArgs, 1, opts);
-					if (ExceptionCheck(ourEnv)) {
-						applicationArgs = NULL;
-					}
-				} else {
-					applicationArgs = NULL;
-				}
-			}
-			ourEnv->DeleteLocalRef(opts);
-		}
-		ourEnv->DeleteLocalRef(pidArg);
-	}
-
-	jobjectArray hcprops = (jobjectArray) ourEnv->CallStaticObjectMethod(
-			hcoptsClass, getPropertiesMethod, applicationArgs);
-
-#if defined(_ZOS)
-#pragma convert(pop)
-#endif
-#if defined(_ZOS)
-	ibmras::common::memory::deallocate((unsigned char**)&pidStr);
-#endif
-
-	if (ExceptionCheck(ourEnv) || hcprops == NULL) {
-		IBMRAS_DEBUG(warning, "No healthcenter.properties found")
-		return;
-	}
-
-	jsize numProps = ourEnv->GetArrayLength(hcprops);
-	IBMRAS_DEBUG_1(debug, "%d.properties found", numProps);
-
-	ibmras::common::Properties theProps;
-
-	for (jsize i = 0; i < numProps; ++i) {
-		jstring line = (jstring) ourEnv->GetObjectArrayElement(hcprops, i);
-		const char* lineUTFChars = ourEnv->GetStringUTFChars(line, NULL);
-#if defined(_ZOS)
-		char* lineChars = ibmras::common::util::createNativeString(lineUTFChars);
-#else
-		const char* lineChars = lineUTFChars;
-#endif
-		if (lineChars) {
-			std::string lineStr(lineChars);
-			size_t pos = lineStr.find('=');
-			if ((pos != std::string::npos) && (pos < lineStr.size())) {
-				std::string key(lineStr.substr(0, pos));
-				std::string value(lineStr.substr(pos + 1));
-				theProps.put(key, value);
-
-			}
-		}
-
-		ourEnv->ReleaseStringUTFChars(line, lineUTFChars);
-#if defined(_ZOS)
-		ibmras::common::memory::deallocate((unsigned char**)&lineChars);
-#endif
-
-	}
-
-	std::string agentPropertyPrefix = agent->getAgentPropertyPrefix();
-	std::list < std::string > hcPropKeys = theProps.getKeys(
-			JAVAMETRICS_PROPERTIES_PREFIX);
-	for (std::list<std::string>::iterator i = hcPropKeys.begin();
-			i != hcPropKeys.end(); ++i) {
-		std::string key = i->substr(strlen(JAVAMETRICS_PROPERTIES_PREFIX));
-		if (key.length() > 0) {
-			std::string newKey = agentPropertyPrefix + key;
-			if (!theProps.exists(newKey)) {
-				theProps.put(newKey, theProps.get(*i));
-			}
-		}
-	}
-	agent->setProperties(theProps);
-}
 
 std::string setAgentLibPathAIX() {
 
@@ -483,7 +345,7 @@ void addAPIPlugin() {
 
 //if we have a remote agent we want to change the agentLibPath here
 	std::string agentRemotePath = agent->getProperty(
-			"com.ibm.diagnostics.healthcenter.agent.path");
+			"com.ibm.javametrics.path");
 	if (agentRemotePath.length() != 0) {
 		std::size_t libPos = agentLibPath.find("/lib");
 		std::string relativeLibPath = agentLibPath.substr(libPos);
@@ -495,11 +357,10 @@ void addAPIPlugin() {
 	registerListener =
 			(void (*)(
 					void (*func)(const char*, unsigned int,
-							void*))) getApiFunc(agentLibPath, std::string("registerListener"));deregisterListener
-	= (void (*)())getApiFunc(agentLibPath, std::string("deregisterListener"));sendControl
-	= (void (*)(const char*, unsigned int,
+							void*))) getApiFunc(agentLibPath, std::string("registerListener"));
+    deregisterListener = (void (*)())getApiFunc(agentLibPath, std::string("deregisterListener"));
+    sendControl	= (void (*)(const char*, unsigned int,
 			void*)) getApiFunc(agentLibPath, std::string("sendControl"));
-
 } 
 
 void addPlugins() {
@@ -528,9 +389,7 @@ void addPlugins() {
 void initialiseProperties(const std::string &options) {
 	agent = ibmras::monitoring::agent::Agent::getInstance();
 	agent->setAgentProperty("launch.options", options);
-	//getHCProperties(options);
 	agent->setLogLevels();
-
 }
 /**
  * launch agent code
@@ -538,10 +397,6 @@ void initialiseProperties(const std::string &options) {
 int launchAgent() {
 
 	agent = ibmras::monitoring::agent::Agent::getInstance();
-
-	if (agent->isHeadlessRunning()) {
-		return -2;
-	}
 
 	agent->setLogLevels();
 
@@ -551,7 +406,7 @@ int launchAgent() {
 #endif
 
 	std::string agentVersion = agent->getVersion();
-	IBMRAS_LOG_1(fine, "Health Center Agent %s", agentVersion.c_str());
+	IBMRAS_LOG_1(fine, "javametrics Agent %s", agentVersion.c_str());
 	// Set connector properties based on data.collection.level
 
 	agent->start();
@@ -577,7 +432,7 @@ void sendMsg(const char *sourceId, uint32 size, void *data) {
 	jint rc = theVM->GetEnv((void **) &ourEnv, JNI_VERSION);
 	if (rc == JNI_EDETACHED) {
 		rc = ibmras::monitoring::plugins::j9::setEnv(&ourEnv,
-				"Health Center (healthcenter)", theVM, false);
+				"Application metrics for Java (javametrics)", theVM, false);
 		attachFlag = true;
 	}
 	if (rc < 0 || NULL == ourEnv) {
@@ -605,42 +460,18 @@ void sendMsg(const char *sourceId, uint32 size, void *data) {
 
 extern "C" {
 JNIEXPORT void JNICALL
-Java_websockets_JavametricsWebSocket_regListener(JNIEnv *env, jclass clazz, jobject obj) {
+Java_com_ibm_javametrics_JavametricsWebSocket_regListener(JNIEnv *env, jclass clazz, jobject obj) {
 	api_callback = env->NewGlobalRef(obj);
 	registerListener(&sendMsg);
 }
 
 JNIEXPORT void JNICALL
-Java_websockets_JavametricsWebSocket_deregListener(JNIEnv *env, jobject obj) {
+Java_com_ibm_javametrics_JavametricsWebSocket_deregListener(JNIEnv *env, jobject obj) {
 	deregisterListener();
 }
 
 JNIEXPORT void JNICALL
-Java_websockets_JavametricsWebSocket_sendMessage(JNIEnv *env, jobject obj, jstring topic, jbyteArray ident) {
-
-	const char *s = env->GetStringUTFChars(topic,NULL);
-	if (s) {
-		jboolean isCopy;
-		jbyte* i = env->GetByteArrayElements(ident, &isCopy);
-		sendControl(s, env->GetArrayLength(ident), (void *)i);
-		env->ReleaseStringUTFChars(topic,s);
-		env->ReleaseByteArrayElements(ident, i, 0);
-	}
-}
-
-JNIEXPORT void JNICALL
-Java_javametrics_regListener(JNIEnv *env, jclass clazz, jobject obj) {
-	api_callback = env->NewGlobalRef(obj);
-	registerListener(&sendMsg);
-}
-
-JNIEXPORT void JNICALL
-Java_javametrics_deregListener(JNIEnv *env, jobject obj) {
-	deregisterListener();
-}
-
-JNIEXPORT void JNICALL
-Java_javametrics_sendMessage(JNIEnv *env, jobject obj, jstring topic, jbyteArray ident) {
+Java_com_ibm_javametrics_JavametricsWebSocket_sendMessage(JNIEnv *env, jobject obj, jstring topic, jbyteArray ident) {
 
 	const char *s = env->GetStringUTFChars(topic,NULL);
 	if (s) {

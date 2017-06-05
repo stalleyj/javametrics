@@ -1,5 +1,6 @@
 #default installation is relative to this
-SRC=./src/ibmras
+OMR_AGENTCORE_SRC=./omr-agentcore/ibmras
+JAVAMETRICS_SRC=./src
 OUTPUT=./output
 #-------------------------------------------------------------------------------------------
 #Output directories i.e. where the files are going to be built
@@ -206,203 +207,203 @@ ${TEST_OUT}/test${EXE_EXT}: ${TEST_OBJS}
 #Individual object files
 #---------------------------------------------------------------------------------------------
 ${AGENT_OUT}/agent.o:
-	${CC} ${INCS} ${CFLAGS} -I"./connector/mqtt" -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/agent/Agent.cpp
+	${CC} ${INCS} ${CFLAGS} -I"./connector/mqtt" -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/agent/Agent.cpp
 
 ${AGENT_OUT}/ThreadPool.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/agent/threads/ThreadPool.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/agent/threads/ThreadPool.cpp
 
 ${AGENT_OUT}/WorkerThread.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/agent/threads/WorkerThread.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/agent/threads/WorkerThread.cpp
 
 ${AGENT_OUT}/Bucket.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/agent/Bucket.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/agent/Bucket.cpp
 
 ${AGENT_OUT}/BucketList.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/agent/BucketList.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/agent/BucketList.cpp
 
 ${AGENT_OUT}/SystemReceiver.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/agent/SystemReceiver.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/agent/SystemReceiver.cpp
 
 ${AGENT_OUT}/ConnectorManager.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/connector/ConnectorManager.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/connector/ConnectorManager.cpp
 
 ${AGENT_OUT}/Plugin.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/Plugin.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/Plugin.cpp
 
 ${AGENT_OUT}/ConfigurationConnector.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/connector/configuration/ConfigurationConnector.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/connector/configuration/ConfigurationConnector.cpp
 
 ${CONNECTOR_OUT}/OStreamConnector.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/connector/ostream/OStreamConnector.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/connector/ostream/OStreamConnector.cpp
 
 ${CONNECTOR_OUT}/HLConnectorPlugin.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/connector/headless/HLConnectorPlugin.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/connector/headless/HLConnectorPlugin.cpp
 
 ${CONNECTOR_OUT}/HLConnector.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/connector/headless/HLConnector.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/connector/headless/HLConnector.cpp
 
 ${CONNECTOR_OUT}/APIConnector.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/connector/api/APIConnector.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/connector/api/APIConnector.cpp
 
 ${PLUGIN_OUT}/plugin.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/test/plugin.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/test/plugin.cpp
 
 ${TEST_OUT}/test.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/testharness/test.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/testharness/test.cpp
 
 ${PLUGIN_OUT}/osplugin.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/os/Plugin.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/os/Plugin.cpp
 
 ${PLUGIN_OUT}/os${OS}.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/os/${OS}.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/os/${OS}.cpp
 
 ${COMMON_OUT}/FileUtils.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/util/FileUtils.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/util/FileUtils.cpp
 
 ${COMMON_OUT}/LibraryUtils.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/util/LibraryUtils.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/util/LibraryUtils.cpp
 
 ${COMMON_OUT}/Logger.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/Logger.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/Logger.cpp
 
 ${COMMON_OUT}/LogManager.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/LogManager.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/LogManager.cpp
 
 ${COMMON_OUT}/zos_switch_from_ifa.o:
-	${ASM} ${SRC}/common/port/${PORTDIR}/zos_switch_from_ifa.s
+	${ASM} ${OMR_AGENTCORE_SRC}/common/port/${PORTDIR}/zos_switch_from_ifa.s
 
 ${COMMON_OUT}/zos_switch_to_ifa.o:
-	${ASM} ${SRC}/common/port/${PORTDIR}/zos_switch_to_ifa.s
+	${ASM} ${OMR_AGENTCORE_SRC}/common/port/${PORTDIR}/zos_switch_to_ifa.s
 
 ${COMMON_OUT}/Thread.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/port/${PORTDIR}/Thread.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/port/${PORTDIR}/Thread.cpp
 
 ${COMMON_OUT}/Lock.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/port/Lock.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/port/Lock.cpp
 
 ${COMMON_OUT}/Process.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/port/${PORTDIR}/Process.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/port/${PORTDIR}/Process.cpp
 
 ${COMMON_OUT}/ThreadData.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/port/ThreadData.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/port/ThreadData.cpp
 
 ${COMMON_OUT}/Properties.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/Properties.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/Properties.cpp
 
 ${COMMON_OUT}/PropertiesFile.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/PropertiesFile.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/PropertiesFile.cpp
 
 ${PLUGIN_OUT}/LegacyData.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/jmx/os/legacy/LegacyData.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/jmx/os/legacy/LegacyData.cpp
 
 ${PLUGIN_OUT}/JMXSourceManager.o:
-	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/jmx/JMXSourceManager.cpp
+	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/jmx/JMXSourceManager.cpp
 
 ${PLUGIN_OUT}/JMXPullSource.o:
-	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/jmx/JMXPullSource.cpp
+	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/jmx/JMXPullSource.cpp
 
 ${PLUGIN_OUT}/JMXUtility.o:
-	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/jmx/JMXUtility.cpp
+	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/jmx/JMXUtility.cpp
 
 ${COMMON_OUT}/memUtils.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/util/memUtils.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/util/memUtils.cpp
 
 ${COMMON_OUT}/MemoryManager.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/MemoryManager.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/MemoryManager.cpp
 
 ${COMMON_OUT}/strUtils.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/util/strUtils.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/util/strUtils.cpp
 
 ${COMMON_OUT}/sysUtils.o:
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/common/util/sysUtils.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/common/util/sysUtils.cpp
 
 ${PLUGIN_OUT}/ENVMXBean.o:
-	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/jni/env/ENVMXBean.cpp
+	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/jni/env/ENVMXBean.cpp
 
 ${PLUGIN_OUT}/ThreadDataProvider.o:
-	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/jni/threads/ThreadDataProvider.cpp
+	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/jni/threads/ThreadDataProvider.cpp
 
 ${PLUGIN_OUT}/MemoryDataProvider.o:
-	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/jni/memory/MemoryDataProvider.cpp
+	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/jni/memory/MemoryDataProvider.cpp
 
 ${PLUGIN_OUT}/MemoryCounterDataProvider.o:
-	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/jni/memorycounter/MemoryCounterDataProvider.cpp
+	${CC} ${INCS} ${CFLAGS} -I${JAVA_PLAT_INCLUDE} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/jni/memorycounter/MemoryCounterDataProvider.cpp
 
 ${PLUGIN_OUT}/pyplugin.o:
-	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${PYTHON_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/pytest/pyplugin.cpp
+	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${PYTHON_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/pytest/pyplugin.cpp
 
-${PLUGIN_OUT}/nodegcplugin.o: ${SRC}/monitoring/plugins/nodegc/nodegcplugin.cpp
-	${CC} ${INCS} -I${NODE_SDK_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/nodegc/nodegcplugin.cpp
+${PLUGIN_OUT}/nodegcplugin.o: ${OMR_AGENTCORE_SRC}/monitoring/plugins/nodegc/nodegcplugin.cpp
+	${CC} ${INCS} -I${NODE_SDK_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/nodegc/nodegcplugin.cpp
 
-${PLUGIN_OUT}/nodeprofplugin.o: ${SRC}/monitoring/plugins/nodeprof/nodeprofplugin.cpp
-	${CC} ${INCS} -I${NODE_SDK_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/nodeprof/nodeprofplugin.cpp
+${PLUGIN_OUT}/nodeprofplugin.o: ${OMR_AGENTCORE_SRC}/monitoring/plugins/nodeprof/nodeprofplugin.cpp
+	${CC} ${INCS} -I${NODE_SDK_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/nodeprof/nodeprofplugin.cpp
 
-${PLUGIN_OUT}/nodeenvplugin.o: ${SRC}/monitoring/plugins/nodeenv/nodeenvplugin.cpp
-	${CC} ${INCS} -I${NODE_SDK_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/nodeenv/nodeenvplugin.cpp
+${PLUGIN_OUT}/nodeenvplugin.o: ${OMR_AGENTCORE_SRC}/monitoring/plugins/nodeenv/nodeenvplugin.cpp
+	${CC} ${INCS} -I${NODE_SDK_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/nodeenv/nodeenvplugin.cpp
 
-${PLUGIN_OUT}/envplugin.o: ${SRC}/monitoring/plugins/common/environment/envplugin.cpp
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/common/environment/envplugin.cpp
+${PLUGIN_OUT}/envplugin.o: ${OMR_AGENTCORE_SRC}/monitoring/plugins/common/environment/envplugin.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/common/environment/envplugin.cpp
 
-${PLUGIN_OUT}/cpuplugin.o: ${SRC}/monitoring/plugins/common/cpu/cpuplugin.cpp
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/common/cpu/cpuplugin.cpp
+${PLUGIN_OUT}/cpuplugin.o: ${OMR_AGENTCORE_SRC}/monitoring/plugins/common/cpu/cpuplugin.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/common/cpu/cpuplugin.cpp
 
-${PLUGIN_OUT}/MemoryPlugin.o: ${SRC}/monitoring/plugins/common/memory/MemoryPlugin.cpp
-	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/common/memory/MemoryPlugin.cpp
+${PLUGIN_OUT}/MemoryPlugin.o: ${OMR_AGENTCORE_SRC}/monitoring/plugins/common/memory/MemoryPlugin.cpp
+	${CC} ${INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/common/memory/MemoryPlugin.cpp
 
 #-------------------------------------------------------------------------------------------
 #JAVA vm files which make up various JAVA shim levels
 #-------------------------------------------------------------------------------------------
 
 ${JAVA_OUT}/javametrics.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/javametrics.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${JAVAMETRICS_SRC}/javametrics.cpp
 
 ${JAVA_OUT}/JVMTIMemoryManager.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/vm/java/JVMTIMemoryManager.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/vm/java/JVMTIMemoryManager.cpp
 
 ${JAVA_OUT}/ClassHistogramProvider.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/ClassHistogramProvider.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/ClassHistogramProvider.cpp
 
 ${JAVA_OUT}/EnvironmentPlugin.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/environment/EnvironmentPlugin.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/environment/EnvironmentPlugin.cpp
 
 ${JAVA_OUT}/LockingPlugin.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/locking/LockingPlugin.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/locking/LockingPlugin.cpp
 
 ${JAVA_OUT}/ThreadsPlugin.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/threads/ThreadsPlugin.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/threads/ThreadsPlugin.cpp
 
 ${JAVA_OUT}/MemoryPlugin.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/memory/MemoryPlugin.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/memory/MemoryPlugin.cpp
 
 ${JAVA_OUT}/MemCountersPlugin.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/memorycounters/MemCountersPlugin.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/memorycounters/MemCountersPlugin.cpp
 
 ${JAVA_OUT}/CpuPlugin.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/cpu/CpuPlugin.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/cpu/CpuPlugin.cpp
 
 ${JAVA_OUT}/AppPlugin.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/api/AppPlugin.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/api/AppPlugin.cpp
 
 ${JAVA_OUT}/Util.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/Util.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/Util.cpp
 
 ${JAVA_OUT}/TraceDataProvider.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/trace/TraceDataProvider.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/trace/TraceDataProvider.cpp
 
 ${JAVA_OUT}/TraceReceiver.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/trace/TraceReceiver.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/trace/TraceReceiver.cpp
 
 ${JAVA_OUT}/MethodLookupProvider.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/methods/MethodLookupProvider.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/methods/MethodLookupProvider.cpp
 
 ${JAVA_OUT}/DumpHandler.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/j9/DumpHandler.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/j9/DumpHandler.cpp
 
 ${JAVA_OUT}/JMXConnectorPlugin.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/connector/jmx/JMXConnectorPlugin.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/connector/jmx/JMXConnectorPlugin.cpp
 
 ${JAVA_OUT}/JMXConnector.o:
-	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/connector/jmx/JMXConnector.cpp
+	${CC} ${INCS} -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/connector/jmx/JMXConnector.cpp
 
 
 #---------------
@@ -410,7 +411,7 @@ ${JAVA_OUT}/JMXConnector.o:
 #---------------
 #${CONNECTOR_OUT}/MQTTConnector.o: HC_EXPORT=
 ${CONNECTOR_OUT}/MQTTConnector.o:
-	${GCC} ${INCS} ${MQTT_INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/connector/mqtt/MQTTConnector.cpp
+	${GCC} ${INCS} ${MQTT_INCS} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/connector/mqtt/MQTTConnector.cpp
 
 #----------------------
 # PAHO MQTT client code
@@ -478,22 +479,22 @@ ${PAHO_OUT}/utf-8.o:
 # OMR
 
 ${OMR_OUT}/healthcenter.o:
-	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/vm/omr/healthcenter.cpp
+	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/vm/omr/healthcenter.cpp
 
 ${OMR_OUT}/CpuDataProvider.o:
-	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/omr/CpuDataProvider.cpp
+	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/omr/CpuDataProvider.cpp
 
 ${OMR_OUT}/NativeMemoryDataProvider.o:
-	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/omr/NativeMemoryDataProvider.cpp
+	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/omr/NativeMemoryDataProvider.cpp
 
 ${OMR_OUT}/MethodLookupProvider.o:
-	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/omr/MethodLookupProvider.cpp
+	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/omr/MethodLookupProvider.cpp
 
 ${OMR_OUT}/TraceDataProvider.o:
-	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/omr/TraceDataProvider.cpp
+	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/omr/TraceDataProvider.cpp
 
 ${OMR_OUT}/MemoryCountersDataProvider.o:
-	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/monitoring/plugins/omr/MemoryCountersDataProvider.cpp
+	${CC} ${INCS} -I${OMR_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/monitoring/plugins/omr/MemoryCountersDataProvider.cpp
 
 
 #-------------------------------------------------------------------------------------------
@@ -504,21 +505,21 @@ ${NODE_OUT}/${LIB_PREFIX}nodecon.${LIB_EXT}: ${NODE_OUT}/nodeconnector.o
 	${LINK} ${LINK_OPT} ${LIBFLAGS} ${LIB_OBJOPT} ${NODE_OUT}/nodeconnector.o ${LIBPATH}"${HC_OUT}" ${HC_LIB_USE} ${NODEEXELIBS} ${EXELIBS}
 
 ${NODE_OUT}/nodeconnector.o:
-	${CC} ${INCS} -I${NODE_SDK_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/vm/node/nodeconnector.cpp
+	${CC} ${INCS} -I${NODE_SDK_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/vm/node/nodeconnector.cpp
 
 #-------------------------------------------------------------------------------------------
 #Python vm files which make up various Python shim levels
 #-------------------------------------------------------------------------------------------
 
 ${PYTHON_OUT}/healthcenter.o:
-	${CC} ${INCS} -I${PYTHON_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/vm/python/healthcenter.cpp
+	${CC} ${INCS} -I${PYTHON_SRC_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/vm/python/healthcenter.cpp
 
 #-------------------------------------------------------------------------------------------
 #Ruby vm files which make up various Ruby shim levels
 #-------------------------------------------------------------------------------------------
 
 ${RUBY_OUT}/healthcenter.o:
-	${CC} ${INCS} -I${RUBY_SRC_INCLUDE} -I${RUBY_SRC_INCLUDE}/x86_64-linux ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${SRC}/vm/ruby/healthcenter.cpp
+	${CC} ${INCS} -I${RUBY_SRC_INCLUDE} -I${RUBY_SRC_INCLUDE}/x86_64-linux ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${OMR_AGENTCORE_SRC}/vm/ruby/healthcenter.cpp
 
 #-------------------------------------------------------------------------------------------
 
