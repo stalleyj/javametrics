@@ -23,25 +23,24 @@
 #include "ibmras/monitoring/agent/Agent.h"
 #include "ibmras/monitoring/AgentExtensions.h"
 #include "ibmras/monitoring/Typesdef.h"
-#include "ibmras/monitoring/plugins/j9/trace/TraceDataProvider.h"
-#include "ibmras/monitoring/plugins/j9/api/AppPlugin.h"
-#include "ibmras/monitoring/plugins/j9/methods/MethodLookupProvider.h"
-#include "ibmras/monitoring/plugins/j9/DumpHandler.h"
-#include "ibmras/monitoring/plugins/j9/ClassHistogramProvider.h"
-#include "ibmras/monitoring/connector/headless/HLConnectorPlugin.h"
+// #include "ibmras/monitoring/plugins/j9/trace/TraceDataProvider.h"
+// #include "ibmras/monitoring/plugins/j9/api/AppPlugin.h"
+// #include "ibmras/monitoring/plugins/j9/methods/MethodLookupProvider.h"
+// #include "ibmras/monitoring/plugins/j9/DumpHandler.h"
+// #include "ibmras/monitoring/plugins/j9/ClassHistogramProvider.h"
+// #include "ibmras/monitoring/connector/headless/HLConnectorPlugin.h"
 #include "javametrics.h"
 #include "ibmras/common/Properties.h"
 #include "ibmras/common/util/strUtils.h"
 #include "ibmras/common/port/Process.h"
 #include "ibmras/vm/java/JVMTIMemoryManager.h"
-#include "ibmras/monitoring/plugins/j9/Util.h"
-
-#include "ibmras/monitoring/plugins/j9/environment/EnvironmentPlugin.h"
-#include "ibmras/monitoring/plugins/j9/locking/LockingPlugin.h"
-#include "ibmras/monitoring/plugins/j9/threads/ThreadsPlugin.h"
-#include "ibmras/monitoring/plugins/j9/memory/MemoryPlugin.h"
-#include "ibmras/monitoring/plugins/j9/memorycounters/MemCountersPlugin.h"
-#include "ibmras/monitoring/plugins/j9/cpu/CpuPlugin.h"
+// #include "ibmras/monitoring/plugins/j9/Util.h"
+// #include "ibmras/monitoring/plugins/j9/environment/EnvironmentPlugin.h"
+// #include "ibmras/monitoring/plugins/j9/locking/LockingPlugin.h"
+// #include "ibmras/monitoring/plugins/j9/threads/ThreadsPlugin.h"
+// #include "ibmras/monitoring/plugins/j9/memory/MemoryPlugin.h"
+// #include "ibmras/monitoring/plugins/j9/memorycounters/MemCountersPlugin.h"
+// #include "ibmras/monitoring/plugins/j9/cpu/CpuPlugin.h"
 
 struct __jdata;
 
@@ -378,12 +377,8 @@ void addPlugins() {
 
 	IBMRAS_DEBUG(debug, "Adding plugins");
 
-	agent->addPlugin(
-			ibmras::monitoring::plugins::j9::api::AppPlugin::getInstance(tDPP));
-
-	ibmras::monitoring::Plugin* environment =
-			ibmras::monitoring::plugins::j9::environment::EnvironmentPlugin::getPlugin(
-					&tDPP);
+// 	agent->addPlugin(
+// 			ibmras::monitoring::plugins::j9::api::AppPlugin::getInstance(tDPP));
 }
 
 void initialiseProperties(const std::string &options) {
@@ -431,8 +426,8 @@ void sendMsg(const char *sourceId, uint32 size, void *data) {
 
 	jint rc = theVM->GetEnv((void **) &ourEnv, JNI_VERSION);
 	if (rc == JNI_EDETACHED) {
-		rc = ibmras::monitoring::plugins::j9::setEnv(&ourEnv,
-				"Application metrics for Java (javametrics)", theVM, false);
+// 		rc = ibmras::monitoring::plugins::j9::setEnv(&ourEnv,
+// 				"Application metrics for Java (javametrics)", theVM, false);
 		attachFlag = true;
 	}
 	if (rc < 0 || NULL == ourEnv) {
