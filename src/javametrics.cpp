@@ -347,6 +347,7 @@ void addAPIPlugin() {
     deregisterListener = (void (*)())getApiFunc(agentLibPath, std::string("deregisterListener"));
     sendControl	= (void (*)(const char*, unsigned int,
 			void*)) getApiFunc(agentLibPath, std::string("sendControl"));
+    pushData = (void (*)(const char*)) getApiFunc(agentLibPath, std::string("pushData"));
 } 
 
 void addPlugins() {
@@ -442,18 +443,18 @@ void sendMsg(const char *sourceId, uint32 size, void *data) {
 
 extern "C" {
 JNIEXPORT void JNICALL
-Java_com_ibm_javametrics_JavametricsWebSocket_regListener(JNIEnv *env, jclass clazz, jobject obj) {
+Java_com_ibm_javametrics_JavametricsAgentConnector_regListener(JNIEnv *env, jclass clazz, jobject obj) {
 	api_callback = env->NewGlobalRef(obj);
 	registerListener(&sendMsg);
 }
 
 JNIEXPORT void JNICALL
-Java_com_ibm_javametrics_JavametricsWebSocket_deregListener(JNIEnv *env, jobject obj) {
+Java_com_ibm_javametrics_JavametricsAgentConnector_deregListener(JNIEnv *env, jobject obj) {
 	deregisterListener();
 }
 
 JNIEXPORT void JNICALL
-Java_com_ibm_javametrics_JavametricsWebSocket_sendMessage(JNIEnv *env, jobject obj, jstring topic, jbyteArray ident) {
+Java_com_ibm_javametrics_JavametricsAgentConnector_sendMessage(JNIEnv *env, jobject obj, jstring topic, jbyteArray ident) {
 
 	const char *s = env->GetStringUTFChars(topic,NULL);
 	if (s) {
@@ -462,6 +463,16 @@ Java_com_ibm_javametrics_JavametricsWebSocket_sendMessage(JNIEnv *env, jobject o
 		sendControl(s, env->GetArrayLength(ident), (void *)i);
 		env->ReleaseStringUTFChars(topic,s);
 		env->ReleaseByteArrayElements(ident, i, 0);
+	}
+}
+
+JNIEXPORT void JNICALL
+Java_com_ibm_javametrics_JavametricsAgentConnector_pushDataToAgent(JNIEnv *env, jobject obj, jstring data) {
+
+	const char *sendData = env->GetStringUTFChars(data,NULL);
+	if (sendData) {
+		pushData(&sendData);
+		env->ReleaseStringUTFChars(data,sendData);
 	}
 }
 

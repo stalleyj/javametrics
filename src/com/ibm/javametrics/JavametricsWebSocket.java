@@ -25,34 +25,16 @@ import com.ibm.javametrics.dataproviders.MemoryPoolDataProvider;
 
 public class JavametricsWebSocket {
 
-	private static native void regListener(JavametricsWebSocket jm);
-
-	private static native void deregListener();
-
-	private static native void sendMessage(String message, byte[] id);
-
-	private static final String CLIENT_ID = "localNative";//$NON-NLS-1$
-	private static final String COMMA = ","; //$NON-NLS-1$
-	private static final String DATASOURCE_TOPIC = "/datasource";//$NON-NLS-1$
-	private static final String CONFIGURATION_TOPIC = "configuration/";//$NON-NLS-1$
-	private static final String HISTORY_TOPIC = "/history/";//$NON-NLS-1$
-
 	ScheduledExecutorService exec;
 
 	private Set<Session> openSessions = new HashSet<>();
+	
+	private JavametricsAgentConnector connector;
 
 	public JavametricsWebSocket() {
 		super();
-
-		regListener(this);
-
-		sendMessage("datasources", CLIENT_ID);//$NON-NLS-1$
-
-		// request the agent to send us current history (flight recorder)
-		sendMessage("history", CLIENT_ID);//$NON-NLS-1$
-
-		// Need to request the method dictionary
-		sendMessage("methoddictionary", "");//$NON-NLS-1$
+		
+		this.connector = new JavametricsAgentConnector();
 
 		exec = Executors.newSingleThreadScheduledExecutor();
 		exec.scheduleAtFixedRate(this::emitMemoryUsage, 2, 2, TimeUnit.SECONDS);
@@ -141,36 +123,6 @@ public class JavametricsWebSocket {
 				}
 
 			});
-		}
-	}
-
-	public void sendMessage(String name, String command, String... params) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(command);
-		for (String parameter : params) {
-			sb.append(COMMA).append(parameter);
-		}
-		sb.trimToSize();
-		sendMessage(name, sb.toString().getBytes());
-	}
-
-	public void receiveData(String type, byte[] data) {
-		String dataType;
-		System.out.println("type is " + type);
-		if (type.startsWith(CLIENT_ID)) {
-			dataType = type.substring(CLIENT_ID.length());
-		} else {
-			dataType = type;
-		}
-		if (dataType.equals(DATASOURCE_TOPIC)) {
-			System.out.println("dataType is " + dataType);
-			String contents;
-			contents = new String(data);
-			System.out.println("contents is " + contents);
-		}
-
-		if (type.equalsIgnoreCase("memory")) {
-			System.out.println("data is " + new String(data));
 		}
 	}
 
