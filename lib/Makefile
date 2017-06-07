@@ -45,10 +45,10 @@ all: setup
 #-------------------------------------------------------------------------------------------
 
 ${JAVA_OUT}/javametrics.o:
-	${CC} ${INCS} -I../omr-agentcore/src -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${JAVAMETRICS_SRC}/javametrics.cpp
+	${CC} ${INCS} -I./omr-agentcore/src -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${JAVAMETRICS_SRC}/javametrics.cpp
 
 ${JAVA_OUT}/JVMTIMemoryManager.o: 
-	${CC} ${INCS} -I../omr-agentcore/src -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${JAVAMETRICS_SRC}/ibmras/vm/java/JVMTIMemoryManager.cpp
+	${CC} ${INCS} -I./omr-agentcore/src -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${JAVAMETRICS_SRC}/ibmras/vm/java/JVMTIMemoryManager.cpp
 
 
 ${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT}:  ${JAVA_OBJS}
