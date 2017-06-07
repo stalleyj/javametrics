@@ -9,10 +9,10 @@ INSTALL_DIR=${OUTPUT}/deploy
 JAVA_OUT=${OUTPUT}/javametrics
 OMR_AGENTCORE_AGENT_OBJS=./omr-agentcore/output/agent/*.o
 OMR_AGENTCORE_COMMON_OBJS=./omr-agentcore/output/common/*.o
+OMR_AGENTCORE_CONNECTOR_OBJS=./omr-agentcore/output/connectors/${LIB_PREFIX}apiplugin.lib
 JAVA_OBJS = ${JAVA_OUT}/javametrics.o ${JAVA_OUT}/JVMTIMemoryManager.o
-JAVAMETRICS_LIB=javametrics.${ARC_EXT}
+JAVAMETRICS_LIB=${LIB_PREFIX}javametrics.${ARC_EXT}
 JAVAMETRICS_AGENT=${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT}	
-CORE_AGENT=${JAVA_OUT}/${LIB_PREFIX}agentcore.${LIB_EXT}
 #-------------------------------------------------------------------------------------------
 #Compilation / build configuration parameters
 #-------------------------------------------------------------------------------------------
@@ -51,8 +51,8 @@ ${JAVA_OUT}/JVMTIMemoryManager.o:
 	${CC} ${INCS} -I../omr-agentcore/src -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${JAVAMETRICS_SRC}/ibmras/vm/java/JVMTIMemoryManager.cpp
 
 
-${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT}: ${AGENT_OBJS} ${JAVA_OBJS}
-	${LINK} ${LINK_OPT} ${LIBFLAGS} ${LIB_OBJOPT} ${JAVA_OBJS} ${OMR_AGENTCORE_AGENT_OBJS} ${OMR_AGENTCORE_COMMON_OBJS} ${LD_OPT}  ${EXELIBS} ${EXEFLAGS}
+${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT}:  ${JAVA_OBJS}
+	${LINK} ${LINK_OPT} ${LIBFLAGS} ${LIB_OBJOPT} ${JAVA_OBJS}  ${OMR_AGENTCORE_AGENT_OBJS} ${OMR_AGENTCORE_COMMON_OBJS} ${LD_OPT}  ${EXELIBS} ${EXEFLAGS}
 	@echo "JAVAMETRICS lib built"
 	
 
@@ -70,13 +70,14 @@ ${OUTPUT}:
 	mkdir -p ${OUTPUT}
 	mkdir -p ${JAVA_OUT}
 	mkdir -p ${INSTALL_DIR}
-	cd omr-agentcore; make BUILD=${BUILD} coreinstall
+	cd ./omr-agentcore; make BUILD=${BUILD} coreinstall
 
 clean:
 	rm -fr ${OUTPUT}
-	cd omr-agentcore; rm -fr ${OUTPUT}
+	cd ./omr-agentcore; rm -fr ${OUTPUT}
 
 javametrics: jm
 	@echo "installing to  ${INSTALL_DIR}"
 	cp ${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT} ${INSTALL_DIR}
+	cp ./omr-agentcore/output/connectors/${LIB_PREFIX}apiplugin.${LIB_EXT} ${INSTALL_DIR}
 	@echo "-----------------------------------------------------------------------------------------------------------------------"

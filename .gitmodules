@@ -1,3 +1,4 @@
-[submodule "omr-agentcore"]
-	path = omr-agentcore
-	url = https://github.com/RuntimeTools/omr-agentcore.git
+
+[submodule "lib/omr-agentcore"]
+	path = lib/omr-agentcore
+	url = https://github.com/RuntimeTools/omr-agentcore

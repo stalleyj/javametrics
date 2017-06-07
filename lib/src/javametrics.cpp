@@ -23,24 +23,11 @@
 #include "ibmras/monitoring/agent/Agent.h"
 #include "ibmras/monitoring/AgentExtensions.h"
 #include "ibmras/monitoring/Typesdef.h"
-// #include "ibmras/monitoring/plugins/j9/trace/TraceDataProvider.h"
-// #include "ibmras/monitoring/plugins/j9/api/AppPlugin.h"
-// #include "ibmras/monitoring/plugins/j9/methods/MethodLookupProvider.h"
-// #include "ibmras/monitoring/plugins/j9/DumpHandler.h"
-// #include "ibmras/monitoring/plugins/j9/ClassHistogramProvider.h"
-// #include "ibmras/monitoring/connector/headless/HLConnectorPlugin.h"
 #include "javametrics.h"
 #include "ibmras/common/Properties.h"
 #include "ibmras/common/util/strUtils.h"
 #include "ibmras/common/port/Process.h"
 #include "ibmras/vm/java/JVMTIMemoryManager.h"
-// #include "ibmras/monitoring/plugins/j9/Util.h"
-// #include "ibmras/monitoring/plugins/j9/environment/EnvironmentPlugin.h"
-// #include "ibmras/monitoring/plugins/j9/locking/LockingPlugin.h"
-// #include "ibmras/monitoring/plugins/j9/threads/ThreadsPlugin.h"
-// #include "ibmras/monitoring/plugins/j9/memory/MemoryPlugin.h"
-// #include "ibmras/monitoring/plugins/j9/memorycounters/MemCountersPlugin.h"
-// #include "ibmras/monitoring/plugins/j9/cpu/CpuPlugin.h"
 
 struct __jdata;
 
@@ -76,6 +63,7 @@ jvmFunctions tDPP;
 void (*registerListener)(void (*)(const char *, unsigned int, void*));
 void (*deregisterListener)();
 void (*sendControl)(const char*, unsigned int, void*);
+void (*apiPushData)(const char*);
 
 jvmtiEnv *pti = NULL;
 
@@ -138,6 +126,7 @@ Agent_OnAttach(JavaVM *vm, char *options, void *reserved) {
 /******************************/
 JNIEXPORT jint JNICALL
 Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
+	std::cerr << "in agent onload";
 	IBMRAS_DEBUG(debug, "OnLoad");
 	jint rc = 0;
 	if (!agentStarted) {
@@ -281,15 +270,15 @@ static std::string fileJoin(const std::string& path,
 
 #if defined(_WINDOWS)
 void* getApiFunc(std::string pluginPath, std::string funcName) {
-	std::string apiPlugin = fileJoin(pluginPath, "hcapiplugin.dll");
+	std::string apiPlugin = fileJoin(pluginPath, "apiplugin.dll");
 	HMODULE handle = LoadLibrary(apiPlugin.c_str());
 	if (handle == NULL) {
-		std::cerr << "API Connector Listener: failed to open hcapiplugin.dll \n";
+		std::cerr << "API Connector Listener: failed to open apiplugin.dll \n";
 		return NULL;
 	}
 	FARPROC apiFunc = GetProcAddress(handle, const_cast<char *>(funcName.c_str()));
 	if (apiFunc == NULL) {
-		std::cerr << "API Connector Listener: cannot find symbol '" << funcName << " in hcapiplugin.dll \n";
+		std::cerr << "API Connector Listener: cannot find symbol '" << funcName << " in apiplugin.dll \n";
 		return NULL;
 	}
 	return (void*) apiFunc;
@@ -351,7 +340,7 @@ void addAPIPlugin() {
 		agentLibPath = agentRemotePath + relativeLibPath;
 	}
 
-	agent->addPlugin(agentLibPath, "hcapiplugin");
+	agent->addPlugin(agentLibPath, "apiplugin");
 
 	registerListener =
 			(void (*)(
@@ -360,7 +349,8 @@ void addAPIPlugin() {
     deregisterListener = (void (*)())getApiFunc(agentLibPath, std::string("deregisterListener"));
     sendControl	= (void (*)(const char*, unsigned int,
 			void*)) getApiFunc(agentLibPath, std::string("sendControl"));
-    pushData = (void (*)(const char*)) getApiFunc(agentLibPath, std::string("pushData"));
+    apiPushData = (void (*)(const char*)) getApiFunc(agentLibPath, std::string("apiPushData"));
+    
 } 
 
 void addPlugins() {
@@ -484,7 +474,7 @@ Java_com_ibm_javametrics_JavametricsAgentConnector_pushDataToAgent(JNIEnv *env, 
 
 	const char *sendData = env->GetStringUTFChars(data,NULL);
 	if (sendData) {
-		pushData(&sendData);
+		apiPushData(sendData);
 		env->ReleaseStringUTFChars(data,sendData);
 	}
 }
