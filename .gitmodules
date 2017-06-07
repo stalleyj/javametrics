@@ -3,5 +3,4 @@
 	path = lib/omr-agentcore
 	url = https://github.com/RuntimeTools/omr-agentcore
 	branch = javametrics
-[submodule "omr-agentcore"]
-	branch = javametrics
+
