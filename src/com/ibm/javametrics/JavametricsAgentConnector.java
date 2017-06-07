@@ -76,7 +76,7 @@ public class JavametricsAgentConnector
 			String contents;
 			contents = new String(data);
 			System.out.println("contents is " + contents);
-		} else { // TODO: should probably filter here
+		} else { // TODO: should filter here and aggregate
 			javametricsWebSocket.emit(new String(data));
 		}
 

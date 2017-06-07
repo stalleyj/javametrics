@@ -55,4 +55,11 @@ public interface Topic
 	 */
 	public void enable();
 
+	
+	/**
+	 * Send a JSON formatted String
+	 * @param payload
+	 */
+	public void sendJSON(String payload);
+
 }

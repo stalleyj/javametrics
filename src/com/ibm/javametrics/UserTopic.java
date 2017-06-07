@@ -56,6 +56,14 @@ public class UserTopic implements Topic
 			javametrics.sendData(json);
 		}
 	}
+	
+	@Override
+	public void sendJSON(String payload) {
+		if(enabled) {
+			String json = "{\"topic\": \"" + topicName + "\", \"payload\":" + payload + "}";
+			javametrics.sendData(json);
+		}
+	}
 
 	@Override
 	public void disable()
