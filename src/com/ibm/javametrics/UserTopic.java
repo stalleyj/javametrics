@@ -38,8 +38,23 @@ public class UserTopic implements Topic
 	@Override
 	public void send(long startTime, long endTime, String message)
 	{
-		// TODO Auto-generated method stub
-		
+		if(enabled) {
+			long duration = endTime - startTime;
+			String json = "{\"topic\": \"" + topicName + "\", \"payload\": " + "{\"time\":\"" + startTime + "\""
+					+ ", \"duration\": \"" + duration + "\"" + ", \"message\": \"" + message + "\"}}";
+			javametrics.sendData(json);
+		}
+	}
+
+	@Override
+	public void send(long startTime, long endTime)
+	{
+		if(enabled) {
+			long duration = endTime - startTime;
+			String json = "{\"topic\": \"" + topicName + "\", \"payload\": " + "{\"time\":\"" + startTime + "\""
+					+ ", \"duration\": \"" + duration + "\"}}";
+			javametrics.sendData(json);
+		}
 	}
 
 	@Override

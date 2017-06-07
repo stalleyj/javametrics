@@ -34,7 +34,7 @@ public class JavametricsWebSocket {
 	public JavametricsWebSocket() {
 		super();
 		
-		this.connector = new JavametricsAgentConnector();
+		this.connector = new JavametricsAgentConnector(this);
 
 		exec = Executors.newSingleThreadScheduledExecutor();
 		exec.scheduleAtFixedRate(this::emitMemoryUsage, 2, 2, TimeUnit.SECONDS);
@@ -124,6 +124,17 @@ public class JavametricsWebSocket {
 
 			});
 		}
+	}
+	
+	protected void emit(String message) {
+		openSessions.forEach((session) -> {
+			try {
+				session.getBasicRemote().sendText(message);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		});
 	}
 
 }

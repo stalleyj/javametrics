@@ -32,9 +32,12 @@ public class JavametricsAgentConnector
 	private static final String CONFIGURATION_TOPIC = "configuration/";//$NON-NLS-1$
 	private static final String HISTORY_TOPIC = "/history/";//$NON-NLS-1$
 	
-	protected JavametricsAgentConnector() {
+	private JavametricsWebSocket javametricsWebSocket;
+	
+	protected JavametricsAgentConnector(JavametricsWebSocket jmws) {
 		super();
 
+		this.javametricsWebSocket = jmws;
 
 		regListener(this);
 
@@ -49,8 +52,6 @@ public class JavametricsAgentConnector
 		Javametrics.getJavametrics().registerJavametricsAgentConnector(this);
 		
 	}
-	
-
 
 	public void sendMessage(String name, String command, String... params) {
 		StringBuffer sb = new StringBuffer();
@@ -75,11 +76,14 @@ public class JavametricsAgentConnector
 			String contents;
 			contents = new String(data);
 			System.out.println("contents is " + contents);
+		} else { // TODO: should probably filter here
+			javametricsWebSocket.emit(new String(data));
 		}
 
 		if (type.equalsIgnoreCase("memory")) {
 			System.out.println("data is " + new String(data));
 		}
+		
 	}
 	
 	public void sendDataToAgent(String data) {
