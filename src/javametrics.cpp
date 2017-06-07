@@ -63,6 +63,7 @@ jvmFunctions tDPP;
 void (*registerListener)(void (*)(const char *, unsigned int, void*));
 void (*deregisterListener)();
 void (*sendControl)(const char*, unsigned int, void*);
+void (*apiPushData)(const char*);
 
 jvmtiEnv *pti = NULL;
 
@@ -125,6 +126,7 @@ Agent_OnAttach(JavaVM *vm, char *options, void *reserved) {
 /******************************/
 JNIEXPORT jint JNICALL
 Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
+	std::cerr << "in agent onload";
 	IBMRAS_DEBUG(debug, "OnLoad");
 	jint rc = 0;
 	if (!agentStarted) {
@@ -347,7 +349,8 @@ void addAPIPlugin() {
     deregisterListener = (void (*)())getApiFunc(agentLibPath, std::string("deregisterListener"));
     sendControl	= (void (*)(const char*, unsigned int,
 			void*)) getApiFunc(agentLibPath, std::string("sendControl"));
-    pushData = (void (*)(const char*)) getApiFunc(agentLibPath, std::string("pushData"));
+    apiPushData = (void (*)(const char*)) getApiFunc(agentLibPath, std::string("apiPushData"));
+    
 } 
 
 void addPlugins() {
@@ -471,7 +474,7 @@ Java_com_ibm_javametrics_JavametricsAgentConnector_pushDataToAgent(JNIEnv *env, 
 
 	const char *sendData = env->GetStringUTFChars(data,NULL);
 	if (sendData) {
-		pushData(&sendData);
+		apiPushData(sendData);
 		env->ReleaseStringUTFChars(data,sendData);
 	}
 }
