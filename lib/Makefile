@@ -70,11 +70,11 @@ ${OUTPUT}:
 	mkdir -p ${OUTPUT}
 	mkdir -p ${JAVA_OUT}
 	mkdir -p ${INSTALL_DIR}
-	cd omr-agentcore; make BUILD=${BUILD} coreinstall
+	cd ./omr-agentcore; make BUILD=${BUILD} coreinstall
 
 clean:
 	rm -fr ${OUTPUT}
-	cd omr-agentcore; rm -fr ${OUTPUT}
+	cd ./omr-agentcore; rm -fr ${OUTPUT}
 
 javametrics: jm
 	@echo "installing to  ${INSTALL_DIR}"
