@@ -24,18 +24,26 @@ public interface Topic
 {
 
 	/**
-	 * Send a message if enabled
+	 * Send a message (sends if enabled)
 	 * @param message
 	 */
 	public void send(String message);
 	
 	/**
-	 * Send a message with a start and end time if enabled
+	 * Send a message with a start and end time (sends if enabled)
 	 * @param startTime
 	 * @param endTime
 	 * @param message
 	 */
 	public void send(long startTime, long endTime, String message);
+	
+	/**
+	 * Send a timed event with a start and end time (sends if enabled)
+	 * @param startTime
+	 * @param endTime
+	 * @param message
+	 */
+	public void send(long startTime, long endTime);
 	
 	/**
 	 * Disable this topic (send methods will do nothing)
@@ -46,5 +54,12 @@ public interface Topic
 	 * Enable this topic
 	 */
 	public void enable();
+
+	
+	/**
+	 * Send a JSON formatted String
+	 * @param payload
+	 */
+	public void sendJSON(String payload);
 
 }
