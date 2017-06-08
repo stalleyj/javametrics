@@ -46,6 +46,13 @@ public interface Topic
 	public void send(long startTime, long endTime);
 	
 	/**
+	 * Send a JSON formatted String
+	 * @param payload
+	 */
+	public void sendJSON(String payload);
+
+	
+	/**
 	 * Disable this topic (send methods will do nothing)
 	 */
 	public void disable();
@@ -55,11 +62,6 @@ public interface Topic
 	 */
 	public void enable();
 
-	
-	/**
-	 * Send a JSON formatted String
-	 * @param payload
-	 */
-	public void sendJSON(String payload);
+	public boolean isEnabled();
 
 }

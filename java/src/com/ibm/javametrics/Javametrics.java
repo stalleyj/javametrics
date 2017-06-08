@@ -44,7 +44,7 @@ public class Javametrics
 	private JavametricsAgentConnector javametricsAgentConnector;
 	
 	/**
-	 * Get a topic to send data on.  If a topic with the given name already exists then that will be returned to you
+	 * Get a Topic to send data on.  If a topic with the given name already exists then that will be returned to you
 	 * @param topicName
 	 * @return
 	 */
@@ -69,5 +69,24 @@ public class Javametrics
 			javametricsAgentConnector.sendDataToAgent(data);
 		}
 	}
+	
+	/**
+	 * Send data to Javametrics
+	 * @param topicName the name of the topic to send data on
+	 * @param payload the JSON formatted String to send
+	 */
+	public void sendJSON(String topicName, String payload) {
+		getTopic(topicName).sendJSON(payload);		
+	}
+	
+	/**
+	 * Returns true if the given topic is enabled
+	 * @param topicName
+	 * @return
+	 */
+	public boolean isEnabled(String topicName) {
+		return getTopic(topicName).isEnabled();
+	}
+
 	
 }
