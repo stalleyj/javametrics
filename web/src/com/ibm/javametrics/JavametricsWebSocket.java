@@ -23,7 +23,7 @@ import com.ibm.javametrics.dataproviders.MemoryPoolDataProvider;
 
 @ServerEndpoint(value = "/", subprotocols = "javametrics-dash")
 
-public class JavametricsWebSocket {
+public class JavametricsWebSocket implements JavametricsListener {
 
 	ScheduledExecutorService exec;
 
@@ -126,7 +126,7 @@ public class JavametricsWebSocket {
 		}
 	}
 	
-	protected void emit(String message) {
+	public void emit(String message) {
 		openSessions.forEach((session) -> {
 			try {
 				session.getBasicRemote().sendText(message);
