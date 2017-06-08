@@ -76,5 +76,11 @@ public class UserTopic implements Topic
 	{
 		enabled = true;
 	}
+
+	@Override
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
 	
 }
