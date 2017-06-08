@@ -1,6 +1,6 @@
 
-[submodule "lib/omr-agentcore"]
-	path = lib/omr-agentcore
+[submodule "native/omr-agentcore"]
+	path = native/omr-agentcore
 	url = https://github.com/RuntimeTools/omr-agentcore
 	branch = javametrics
 
