@@ -286,9 +286,9 @@ void* getApiFunc(std::string pluginPath, std::string funcName) {
 #else
 void* getApiFunc(std::string pluginPath, std::string funcName) {
 #if defined(__MACH__) || defined(__APPLE__)
-	std::string libname = "libhcapiplugin.dylib";
+	std::string libname = "libapiplugin.dylib";
 #else
-	std::string libname = "libhcapiplugin.so";
+	std::string libname = "libapiplugin.so";
 #endif
 	std::string apiPlugin = fileJoin(pluginPath, libname);
 	void* handle = dlopen(apiPlugin.c_str(), RTLD_LAZY);
