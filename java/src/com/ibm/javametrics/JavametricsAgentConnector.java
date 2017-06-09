@@ -34,7 +34,7 @@ public class JavametricsAgentConnector
 	
 	private JavametricsListener javametricsListener;
 	
-	protected JavametricsAgentConnector(JavametricsListener jml) {
+	public JavametricsAgentConnector(JavametricsListener jml) {
 		super();
 
 		this.javametricsListener = jml;

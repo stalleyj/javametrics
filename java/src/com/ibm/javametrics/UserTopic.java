@@ -23,6 +23,7 @@ public class UserTopic implements Topic
 	private boolean enabled = true;
 	
 	protected UserTopic(String topicName, Javametrics javametrics) {
+		this.javametrics = javametrics;
 		this.topicName = topicName;
 	}
 
