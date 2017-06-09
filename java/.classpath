@@ -7,5 +7,7 @@
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/asm/asm-5.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/asm/asm-commons-5.0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

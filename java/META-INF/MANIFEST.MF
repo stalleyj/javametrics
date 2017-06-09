@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Premain-Class: com.ibm.javametrics.instrument.Agent
+Agent-Class: com.ibm.javametrics.instrument.Agent
+Boot-Class-Path: asm/asm-5.0.4.jar asm/asm-commons-5.0.4.jar
