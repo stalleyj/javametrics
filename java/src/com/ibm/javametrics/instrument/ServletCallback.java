@@ -20,6 +20,8 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Enumeration;
 
+import com.ibm.javametrics.Javametrics;
+
 public class ServletCallback {
 
 	@SuppressWarnings("unchecked")
@@ -86,10 +88,8 @@ public class ServletCallback {
 		if (Agent.debug) {
 			System.err.println("{\"http\" : " + data.toJsonString() + "}");
 		}
-		
-//		JavaMetrics.getInstance().get("http").sendJson(data.toJsonString());
-//		or
-//		JavaMetrics.send("http", data.toJsonString());
+
+		Javametrics.getJavametrics().sendJSON("http", data.toJsonString());
 
 	}
 
