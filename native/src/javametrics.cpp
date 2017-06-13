@@ -33,9 +33,6 @@ struct __jdata;
 
 #include "jvmti.h"
 #include "jni.h"
-#include "ibmjvmti.h"
-#include "jni.h"
-#include "jniport.h"
 
 #if defined(_WINDOWS)
 #include <windows.h>
