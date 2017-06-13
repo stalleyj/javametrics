@@ -18,11 +18,9 @@ import com.ibm.javametrics.dataproviders.CPUDataProvider;
 import com.ibm.javametrics.dataproviders.MemoryPoolDataProvider;
 
 /**
- * Websocket Endpoint implementation class EchoProtocol
+ * Websocket Endpoint implementation for JavametricsWebSocket
  */
-
 @ServerEndpoint(value = "/", subprotocols = "javametrics-dash")
-
 public class JavametricsWebSocket implements JavametricsListener {
 
 	ScheduledExecutorService exec;
