@@ -18,19 +18,17 @@ package com.ibm.javametrics.instrument;
 import java.util.HashSet;
 
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.Method;
 
-public class HttpServletAdapter extends BaseAdviceAdapter {
+public class HttpServletAdapter extends ServletCallBackAdapter {
 
 	static HashSet<String> methodsToInstrument = new HashSet<String>();
 
 	static {
-		methodsToInstrument.add("doGet");		
+		methodsToInstrument.add("doGet");
 		methodsToInstrument.add("doPost");
 		methodsToInstrument.add("service");
 	}
-	
+
 	protected HttpServletAdapter(String className, MethodVisitor mv, int access, String name, String desc) {
 		super(className, mv, access, name, desc);
 	}
@@ -44,14 +42,9 @@ public class HttpServletAdapter extends BaseAdviceAdapter {
 
 	@Override
 	protected void onMethodExit(int opcode) {
-
 		if (methodsToInstrument.contains(methodName)) {
-			loadLocal(methodEntertime);
-			loadArgs();
-			invokeStatic(Type.getType("com/ibm/javametrics/instrument/ServletCallback"), Method.getMethod(
-					"void doGetCallback(long, java.lang.Object, java.lang.Object)"));
+			insertServletCallback();
 		}
 	}
-
 
 }
