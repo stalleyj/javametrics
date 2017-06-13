@@ -19,7 +19,7 @@ import java.lang.instrument.Instrumentation;
 
 public class Agent {
 	
-	public static boolean debug = true;
+	public static boolean debug = (System.getProperty("com.ibm.javamatrics.javaagent.debug", "false").equals("true"));
 
 	public static void premain(String agentArgs, Instrumentation inst) {
 		inst.addTransformer(new ClassTransformer());
