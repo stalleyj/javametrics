@@ -111,7 +111,6 @@ public class JavametricsWebApp implements JavametricsListener {
 						synchronized (aggregateHttpData) {
 							aggregateHttpData.aggregate(jsonObject.getJsonObject("payload"));
 						}
-						return;
 					} else {
 						emit(jsonObject.toString());
 					}
