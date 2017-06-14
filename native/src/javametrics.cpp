@@ -28,6 +28,7 @@
 #include "ibmras/common/util/strUtils.h"
 #include "ibmras/common/port/Process.h"
 #include "ibmras/vm/java/JVMTIMemoryManager.h"
+#include "ibmras/monitoring/plugins/j9/Util.h"
 
 struct __jdata;
 
@@ -399,6 +400,7 @@ int launchAgent() {
 
 
 void sendMsg(const char *sourceId, uint32 size, void *data) {
+
 	bool attachFlag = false;
 
 	if (theVM == NULL) {
@@ -414,8 +416,8 @@ void sendMsg(const char *sourceId, uint32 size, void *data) {
 
 	jint rc = theVM->GetEnv((void **) &ourEnv, JNI_VERSION);
 	if (rc == JNI_EDETACHED) {
-// 		rc = ibmras::monitoring::plugins::j9::setEnv(&ourEnv,
-// 				"Application metrics for Java (javametrics)", theVM, false);
+ 		rc = ibmras::monitoring::plugins::j9::setEnv(&ourEnv,
+ 				"Application metrics for Java (javametrics)", theVM, false);
 		attachFlag = true;
 	}
 	if (rc < 0 || NULL == ourEnv) {
@@ -477,6 +479,4 @@ Java_com_ibm_javametrics_JavametricsAgentConnector_pushDataToAgent(JNIEnv *env, 
 }
 
 }
-
-
 
