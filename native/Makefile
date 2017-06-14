@@ -83,4 +83,5 @@ javametrics: jm
 	@echo "installing to  ${INSTALL_DIR}"
 	cp ${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT} ${INSTALL_DIR}
 	cp ./omr-agentcore/output/connectors/${LIB_PREFIX}apiplugin.${LIB_EXT} ${INSTALL_DIR}
+	cp ./omr-agentcore/output/plugins/${LIB_PREFIX}envplugin.${LIB_EXT} ${INSTALL_DIR}
 	@echo "-----------------------------------------------------------------------------------------------------------------------"
