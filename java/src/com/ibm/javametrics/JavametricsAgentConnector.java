@@ -64,8 +64,8 @@ public class JavametricsAgentConnector {
 	}
 
 	public void receiveData(String type, byte[] data) {
-		String dataType;
-		System.out.println("type is " + type);
+//		String dataType;
+//		System.out.println("type is " + type);
 		javametricsListener.receive(type, new String(data));
 //		if (type.startsWith(CLIENT_ID)) {
 //			dataType = type.substring(CLIENT_ID.length());
