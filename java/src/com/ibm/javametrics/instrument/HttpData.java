@@ -84,7 +84,7 @@ public class HttpData {
 				sb.append('\"');
 				sb.append(pair.getKey());
 				sb.append("\":\"");
-				sb.append(pair.getValue());
+				sb.append(pair.getValue().replace("\"", "\\\""));
 				sb.append('\"');
 				first = false;
 			}
@@ -114,7 +114,7 @@ public class HttpData {
 				sb.append('\"');
 				sb.append(pair.getKey());
 				sb.append("\":\"");
-				sb.append(pair.getValue());
+				sb.append(pair.getValue().replace("\"", "\\\""));
 				sb.append('\"');
 				first = false;
 			}
