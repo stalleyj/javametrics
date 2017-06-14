@@ -30,10 +30,11 @@ public class JavametricsAgentConnector {
 	private static final String DATASOURCE_TOPIC = "/datasource";//$NON-NLS-1$
 	private static final String CONFIGURATION_TOPIC = "configuration/";//$NON-NLS-1$
 	private static final String HISTORY_TOPIC = "/history/";//$NON-NLS-1$
-
+	
 	private JavametricsListener javametricsListener;
-
+	
 	public JavametricsAgentConnector(JavametricsListener jml) {
+		super();
 
 		this.javametricsListener = jml;
 
@@ -46,9 +47,10 @@ public class JavametricsAgentConnector {
 
 		// Need to request the method dictionary
 		sendMessage("methoddictionary", "");//$NON-NLS-1$
+		
+		Javametrics.registerJavametricsAgentConnector(this);
 
-		Javametrics.getJavametrics().registerJavametricsAgentConnector(this);
-
+		new JavametricsMBeanConnector(this);
 	}
 
 	public void sendMessage(String name, String command, String... params) {
@@ -64,26 +66,22 @@ public class JavametricsAgentConnector {
 	public void receiveData(String type, byte[] data) {
 		String dataType;
 		System.out.println("type is " + type);
-		if (type.startsWith(CLIENT_ID)) {
-			dataType = type.substring(CLIENT_ID.length());
-		} else {
-			dataType = type;
-		}
-		if (dataType.equals(DATASOURCE_TOPIC)) {
-			System.out.println("dataType is " + dataType);
-			String contents;
-			contents = new String(data);
-			System.out.println("contents is " + contents);
-		} else {
-			javametricsListener.receive(dataType, new String(data));
-		}
-
-		if (type.equalsIgnoreCase("memory")) {
-			System.out.println("data is " + new String(data));
-		}
-
+		javametricsListener.receive(type, new String(data));
+//		if (type.startsWith(CLIENT_ID)) {
+//			dataType = type.substring(CLIENT_ID.length());
+//		} else {
+//			dataType = type;
+//		}
+//		if (dataType.equals(DATASOURCE_TOPIC)) {
+//			System.out.println("dataType is " + dataType);
+//			String contents;
+//			contents = new String(data);
+//			System.out.println("contents is " + contents);
+//		} else { // TODO: should filter here and aggregate
+//			javametricsListener.emit(new String(data));
+//		}
 	}
-
+	
 	public void sendDataToAgent(String data) {
 		pushDataToAgent(data);
 	}
