@@ -70,9 +70,6 @@ public class Javametrics {
 	protected void sendData(String data) {
 		if (javametricsAgentConnector != null) {
 			javametricsAgentConnector.sendDataToAgent(data);
-			
-			// TEMPORARY ... Send directly to listener
-			javametricsAgentConnector.receiveData("api", data.getBytes());
 		}
 	}
 
