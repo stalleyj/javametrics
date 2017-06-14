@@ -89,7 +89,7 @@ public class ServletCallback {
 			System.err.println("{\"http\" : " + data.toJsonString() + "}");
 		}
 
-		Javametrics.getJavametrics().sendJSON("http", data.toJsonString());
+		Javametrics.sendJSON("http", data.toJsonString());
 
 	}
 

@@ -24,26 +24,8 @@ import java.util.HashMap;
  */
 public class Javametrics {
 
-	private static Javametrics instance;
-
-	static {
-		instance = new Javametrics();
-	}
-
-	private Javametrics() {
-	}
-
-	/**
-	 * Get a Javametrics instance
-	 * 
-	 * @return
-	 */
-	public static Javametrics getJavametrics() {
-		return instance;
-	}
-
-	private HashMap<String, Topic> topics = new HashMap<String, Topic>();
-	private JavametricsAgentConnector javametricsAgentConnector;
+	private static HashMap<String, Topic> topics = new HashMap<String, Topic>();
+	private static JavametricsAgentConnector javametricsAgentConnector;
 
 	/**
 	 * Get a Topic to send data on. If a topic with the given name already
@@ -52,22 +34,22 @@ public class Javametrics {
 	 * @param topicName
 	 * @return
 	 */
-	public Topic getTopic(String topicName) {
+	public static Topic getTopic(String topicName) {
 		if (topics.containsKey(topicName)) {
 			return topics.get(topicName);
 		} else {
-			Topic topic = new UserTopic(topicName, this);
+			Topic topic = new UserTopic(topicName);
 			topics.put(topicName, topic);
 			return topic;
 		}
 	}
 
-	protected void registerJavametricsAgentConnector(JavametricsAgentConnector javametricsAgentConnector) {
-		this.javametricsAgentConnector = javametricsAgentConnector;
+	protected static void registerJavametricsAgentConnector(JavametricsAgentConnector javametricsAgentConnector) {
+		Javametrics.javametricsAgentConnector = javametricsAgentConnector;
 
 	}
 
-	protected void sendData(String data) {
+	protected static void sendData(String data) {
 		if (javametricsAgentConnector != null) {
 			javametricsAgentConnector.sendDataToAgent(data);
 		}
@@ -81,7 +63,7 @@ public class Javametrics {
 	 * @param payload
 	 *            the JSON formatted String to send
 	 */
-	public void sendJSON(String topicName, String payload) {
+	public static void sendJSON(String topicName, String payload) {
 		getTopic(topicName).sendJSON(payload);
 	}
 
@@ -91,7 +73,7 @@ public class Javametrics {
 	 * @param topicName
 	 * @return
 	 */
-	public boolean isEnabled(String topicName) {
+	public static boolean isEnabled(String topicName) {
 		return getTopic(topicName).isEnabled();
 	}
 

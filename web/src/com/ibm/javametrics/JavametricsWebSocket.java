@@ -2,11 +2,11 @@ package com.ibm.javametrics;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -18,35 +18,24 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import com.ibm.javametrics.dataproviders.CPUDataProvider;
-import com.ibm.javametrics.dataproviders.MemoryPoolDataProvider;
-
 /**
  * Websocket Endpoint implementation for JavametricsWebSocket
  */
+
 @ServerEndpoint(value = "/", subprotocols = "javametrics-dash")
 public class JavametricsWebSocket implements JavametricsListener {
 
-	ScheduledExecutorService exec;
-
 	private Set<Session> openSessions = new HashSet<>();
-
+	
 	private JavametricsAgentConnector connector;
 
 	private HttpDataAggregator aggregateHttpData;
 
 	public JavametricsWebSocket() {
 		super();
-
+		System.out.println("starting websocket");
 		this.connector = new JavametricsAgentConnector(this);
 		this.aggregateHttpData = new HttpDataAggregator();
-
-		exec = Executors.newSingleThreadScheduledExecutor();
-		exec.scheduleAtFixedRate(this::emitMemoryUsage, 2, 2, TimeUnit.SECONDS);
-		exec.scheduleAtFixedRate(this::emitCPUUsage, 2, 2, TimeUnit.SECONDS);
-		exec.scheduleAtFixedRate(this::emitMemoryPoolUsage, 2, 2, TimeUnit.SECONDS);
-		exec.scheduleAtFixedRate(this::emitHttp, 2, 2, TimeUnit.SECONDS);
-
 	}
 
 	@OnOpen
@@ -78,50 +67,11 @@ public class JavametricsWebSocket implements JavametricsListener {
 		System.err.println("handleMessage called with: " + message);
 	}
 
-	private void emitMemoryUsage() {
-		long timeStamp = System.currentTimeMillis();
-		long memTotal = Runtime.getRuntime().totalMemory();
-		long memFree = Runtime.getRuntime().freeMemory();
-		long memUsed = memTotal - memFree;
-		String message = "{\"topic\": \"memory\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
-				+ ", \"physical\": \"" + memTotal + "\"" + ", \"physical_used\": \"" + memUsed + "\"" + "}}";
-		openSessions.forEach((session) -> {
-			try {
-				session.getBasicRemote().sendText(message);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
-	private void emitCPUUsage() {
-		long timeStamp = System.currentTimeMillis();
-		double process = CPUDataProvider.getProcessCpuLoad();
-		double system = CPUDataProvider.getSystemCpuLoad();
-		if (system >= 0 && process >= 0) {
-			String message = "{\"topic\": \"cpu\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
-					+ ", \"system\": \"" + system + "\"" + ", \"process\": \"" + process + "\"" + "}}";
-			emit(message);
-		}
-	}
-
-	private void emitMemoryPoolUsage() {
-		long timeStamp = System.currentTimeMillis();
-		long usedHeapAfterGC = MemoryPoolDataProvider.getUsedHeapAfterGC();
-		long usedNative = MemoryPoolDataProvider.getNativeMemory();
-		long usedHeap = MemoryPoolDataProvider.getHeapMemory();
-		if (usedHeapAfterGC >= 0) { // check that some data is available
-			String message = "{\"topic\": \"memoryPools\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
-					+ ", \"usedHeapAfterGC\": \"" + usedHeapAfterGC + "\"" + ", \"usedHeap\": \"" + usedHeap + "\""
-					+ ", \"usedNative\": \"" + usedNative + "\"" + "}}";
-			emit(message);
-		}
-	}
-
 	public void emit(String message) {
 		openSessions.forEach((session) -> {
 			try {
 				session.getBasicRemote().sendText(message);
+				System.err.println("sending " + message);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -144,22 +94,65 @@ public class JavametricsWebSocket implements JavametricsListener {
 		emit(httpUrlData);
 	}
 
-
 	@Override
 	public void receive(String topic, String data) {
 		if (topic.equals("api")) {
-			JsonReader jsonReader = Json.createReader(new StringReader(data));
-			JsonObject jsonObject = jsonReader.readObject();
-			String topicName = jsonObject.getString("topic", null);
-			if (topicName != null) {
-				if (topicName.equals("http")) {
-					synchronized (aggregateHttpData) {
-						aggregateHttpData.aggregate(jsonObject.getJsonObject("payload"));
+			List<String> split = splitIntoJSONObjects(data);
+			//System.out.println("data = " + data.toString());
+			for (Iterator<String> iterator = split.iterator(); iterator.hasNext();) {
+				String jsonStr = iterator.next();
+				//System.out.println("jsonStr = " + jsonStr.toString());
+				JsonReader jsonReader = Json.createReader(new StringReader(jsonStr));
+				JsonObject jsonObject = jsonReader.readObject();
+				//System.out.println(jsonObject.toString());
+				String topicName = jsonObject.getString("topic", null);
+				if (topicName != null) {
+					if (topicName.equals("http")) {
+						synchronized (aggregateHttpData) {
+							aggregateHttpData.aggregate(jsonObject.getJsonObject("payload"));
+						}
+						return;
+					} else {
+						emit(jsonObject.toString());
 					}
-					return;
 				}
 			}
+			emitHttp();
 		}
-		emit(data);
+	}
+
+	/**
+	 * Split a string of JSON objects into multiple strings
+	 * @param data
+	 * @return
+	 */
+	private List<String> splitIntoJSONObjects(String data) {
+		List<String> strings = new ArrayList<String>();
+		int index = 0;
+		int closingBracket = index + 1;
+		int bracketCounter = 1;
+		while(index < data.length() - 1 && closingBracket < data.length()) {
+			// Find the matching bracket for the bracket at location 'index'
+			boolean found = false;
+			if(data.charAt(closingBracket) == '{') {
+				bracketCounter++;
+			} else if(data.charAt(closingBracket) == '}') {
+				bracketCounter--;
+				if(bracketCounter == 0) {
+					// found matching bracket
+					found = true;
+				}
+			}
+			if (found) {
+				strings.add(data.substring(index, closingBracket + 1));
+				index = closingBracket + 1;
+				closingBracket = index + 1;
+				found = false;
+				bracketCounter = 1;
+			} else {
+				closingBracket++;
+			}
+		}
+		return strings;
 	}
 }

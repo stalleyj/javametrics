@@ -19,11 +19,9 @@ public class UserTopic implements Topic
 {
 
 	private String topicName;
-	private Javametrics javametrics;
 	private boolean enabled = true;
 	
-	protected UserTopic(String topicName, Javametrics javametrics) {
-		this.javametrics = javametrics;
+	protected UserTopic(String topicName) {
 		this.topicName = topicName;
 	}
 
@@ -32,7 +30,7 @@ public class UserTopic implements Topic
 	{
 		if(enabled) {
 			String json = "{\"topic\": \"" + topicName + "\", \"payload\": {\"message\":\"" + message + "\"}}";
-			javametrics.sendData(json);
+			Javametrics.sendData(json);
 		}
 	}
 
@@ -43,7 +41,7 @@ public class UserTopic implements Topic
 			long duration = endTime - startTime;
 			String json = "{\"topic\": \"" + topicName + "\", \"payload\": " + "{\"time\":\"" + startTime + "\""
 					+ ", \"duration\": \"" + duration + "\"" + ", \"message\": \"" + message + "\"}}";
-			javametrics.sendData(json);
+			Javametrics.sendData(json);
 		}
 	}
 
@@ -54,7 +52,7 @@ public class UserTopic implements Topic
 			long duration = endTime - startTime;
 			String json = "{\"topic\": \"" + topicName + "\", \"payload\": " + "{\"time\":\"" + startTime + "\""
 					+ ", \"duration\": \"" + duration + "\"}}";
-			javametrics.sendData(json);
+			Javametrics.sendData(json);
 		}
 	}
 	
@@ -62,7 +60,7 @@ public class UserTopic implements Topic
 	public void sendJSON(String payload) {
 		if(enabled) {
 			String json = "{\"topic\": \"" + topicName + "\", \"payload\":" + payload + "}";
-			javametrics.sendData(json);
+			Javametrics.sendData(json);
 		}
 	}
 
