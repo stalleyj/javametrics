@@ -26,14 +26,14 @@ public class HttpJspPageAdapter extends ServletCallBackAdapter {
 	@Override
 	protected void onMethodEnter() {
 		if (methodName.equals("_jspService")) {
-			insertMethodTimer();
+			injectMethodTimer();
 		}
 	}
 
 	@Override
 	protected void onMethodExit(int opcode) {
 		if (methodName.equals("_jspService")) {
-			insertServletCallback();
+			injectServletCallback();
 		}
 	}
 

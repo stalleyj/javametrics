@@ -70,8 +70,10 @@ public class JavametricsWebApp implements JavametricsListener {
 	public void emit(String message) {
 		openSessions.forEach((session) -> {
 			try {
-				session.getBasicRemote().sendText(message);
-				System.err.println("sending " + message);
+				if (session.isOpen()) {
+					session.getBasicRemote().sendText(message);
+//					System.err.println("sending " + message);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -101,10 +103,8 @@ public class JavametricsWebApp implements JavametricsListener {
 			//System.out.println("data = " + data.toString());
 			for (Iterator<String> iterator = split.iterator(); iterator.hasNext();) {
 				String jsonStr = iterator.next();
-				//System.out.println("jsonStr = " + jsonStr.toString());
 				JsonReader jsonReader = Json.createReader(new StringReader(jsonStr));
 				JsonObject jsonObject = jsonReader.readObject();
-				//System.out.println(jsonObject.toString());
 				String topicName = jsonObject.getString("topic", null);
 				if (topicName != null) {
 					if (topicName.equals("http")) {

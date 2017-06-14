@@ -72,20 +72,20 @@ public class HttpData {
 
 	public String getHeaders() {
 
-		StringBuilder sb = new StringBuilder("\"header\" : {");
+		StringBuilder sb = new StringBuilder("\"header\":{");
 		if (headers != null) {
 			boolean first = true;
 			Iterator<Entry<String, String>> it = headers.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<String, String> pair = (Map.Entry<String, String>) it.next();
 				if (!first) {
-					sb.append(", ");
+					sb.append(',');
 				}
-				sb.append("\"");
+				sb.append('\"');
 				sb.append(pair.getKey());
-				sb.append("\" : \"");
+				sb.append("\":\"");
 				sb.append(pair.getValue());
-				sb.append("\"");
+				sb.append('\"');
 				first = false;
 			}
 		}
@@ -102,20 +102,20 @@ public class HttpData {
 	}
 
 	public String getRequestHeaders() {
-		StringBuilder sb = new StringBuilder("\"requestHeader\" : {");
+		StringBuilder sb = new StringBuilder("\"requestHeader\":{");
 		if (requestHeaders != null) {
 			boolean first = true;
 			Iterator<Entry<String, String>> it = requestHeaders.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<String, String> pair = (Map.Entry<String, String>) it.next();
 				if (!first) {
-					sb.append(", ");
+					sb.append(',');
 				}
-				sb.append("\"");
+				sb.append('\"');
 				sb.append(pair.getKey());
-				sb.append("\" : \"");
+				sb.append("\":\"");
 				sb.append(pair.getValue());
-				sb.append("\"");
+				sb.append('\"');
 				first = false;
 			}
 		}
@@ -133,21 +133,23 @@ public class HttpData {
 	}
 
 	public String toJsonString() {
-		StringBuilder sb = new StringBuilder("{\"time\" : ");
+		StringBuilder sb = new StringBuilder("{\"time\":");
 		sb.append(requestTime);
-		sb.append(", \"duration\" : ");
+		sb.append(",\"duration\":");
 		sb.append(duration);
-		sb.append(", \"url\" : \"");
+		sb.append(",\"url\":\"");
 		sb.append(url);
-		sb.append("\"");
-		sb.append(", \"method\" : \"");
+		sb.append('\"');
+		sb.append(",\"method\":\"");
 		sb.append(method);
-		sb.append("\"");
-		sb.append(", \"contentType\" : \"");
+		sb.append('\"');
+		sb.append(",\"contentType\":\"");
 		sb.append(contentType);
-		sb.append("\"");
-		sb.append(", " + getHeaders());
-		sb.append(", " + getRequestHeaders());
+		sb.append('\"');
+		sb.append(',');
+		sb.append(getHeaders());
+		sb.append(',');
+		sb.append(getRequestHeaders());
 		sb.append('}');
 		
 		return sb.toString();

@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2017 IBM Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ ******************************************************************************/
 package com.ibm.javametrics;
 
 import java.util.HashMap;
@@ -49,7 +64,7 @@ public class HttpDataAggregator {
 
 		long requestDuration = jsonObject.getJsonNumber("duration").longValue();
 		String requestUrl = jsonObject.getString("url", "");
-		if (requestDuration > longest) {
+		if (requestDuration > longest || total == 1) {
 			longest = requestDuration;
 			url = requestUrl;
 		}	
@@ -65,15 +80,15 @@ public class HttpDataAggregator {
 	}
 	
 	String toJsonString() {
-		StringBuilder sb = new StringBuilder("{\"topic\" : \"http\", \"payload\" : {\"time\" : ");
+		StringBuilder sb = new StringBuilder("{\"topic\":\"http\",\"payload\":{\"time\":");
 		sb.append(time);
-		sb.append(", \"total\" : ");
+		sb.append(",\"total\":");
 		sb.append(total);
-		sb.append(", \"longest\" : ");
+		sb.append(",\"longest\":");
 		sb.append(longest);
-		sb.append(", \"average\" : ");
+		sb.append(",\"average\":");
 		sb.append(average);
-		sb.append(", \"url\" : \"");
+		sb.append(",\"url\":\"");
 		sb.append(url);
 		sb.append("\"}}");
 		return sb.toString();
@@ -90,7 +105,7 @@ public class HttpDataAggregator {
 	}
 
 	public String urlDatatoJsonString() {
-		StringBuilder sb = new StringBuilder("{\"topic\" : \"httpURLs\", \"payload\" : [");
+		StringBuilder sb = new StringBuilder("{\"topic\":\"httpURLs\",\"payload\":[");
 		
 	    Iterator<Entry<String, HttpUrlData>> it = responseTimes.entrySet().iterator();
         boolean first = true;
@@ -100,14 +115,14 @@ public class HttpDataAggregator {
 	        	sb.append(',');
 	        }
 			first = false;
-	        sb.append("{ \"url\" : \"");
+	        sb.append("{\"url\":\"");
 	        sb.append(pair.getKey());
-	        sb.append("\", \"averageResponseTime\" : ");
+	        sb.append("\",\"averageResponseTime\":");
 	        sb.append(pair.getValue().averageResponseTime);
-	        sb.append("}");
+	        sb.append('}');
 	    }
 	    
-		sb.append(" ] }");
+		sb.append("]}");
 		return sb.toString();
 	}
 }
