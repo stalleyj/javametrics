@@ -18,22 +18,24 @@ package com.ibm.javametrics;
 import java.util.HashMap;
 
 /**
- * Javametrics public API class.  Used to create Topics which can send data to Javametrics
- * Use Javametrics.getJavametrics() to get the singleton instance of this class
+ * Javametrics public API class. Used to create Topics which can send data to
+ * Javametrics Use Javametrics.getJavametrics() to get the singleton instance of
+ * this class
  */
-public class Javametrics
-{
-	
+public class Javametrics {
+
 	private static Javametrics instance;
-	
+
 	static {
 		instance = new Javametrics();
 	}
-	
-	private Javametrics() {}
-	
+
+	private Javametrics() {
+	}
+
 	/**
 	 * Get a Javametrics instance
+	 * 
 	 * @return
 	 */
 	public static Javametrics getJavametrics() {
@@ -42,14 +44,16 @@ public class Javametrics
 
 	private HashMap<String, Topic> topics = new HashMap<String, Topic>();
 	private JavametricsAgentConnector javametricsAgentConnector;
-	
+
 	/**
-	 * Get a Topic to send data on.  If a topic with the given name already exists then that will be returned to you
+	 * Get a Topic to send data on. If a topic with the given name already
+	 * exists then that will be returned to you
+	 * 
 	 * @param topicName
 	 * @return
 	 */
 	public Topic getTopic(String topicName) {
-		if(topics.containsKey(topicName)) {
+		if (topics.containsKey(topicName)) {
 			return topics.get(topicName);
 		} else {
 			Topic topic = new UserTopic(topicName, this);
@@ -58,29 +62,35 @@ public class Javametrics
 		}
 	}
 
-	protected void registerJavametricsAgentConnector(JavametricsAgentConnector javametricsAgentConnector)
-	{
+	protected void registerJavametricsAgentConnector(JavametricsAgentConnector javametricsAgentConnector) {
 		this.javametricsAgentConnector = javametricsAgentConnector;
-		
+
 	}
-	
+
 	protected void sendData(String data) {
-		if(javametricsAgentConnector != null) {
+		if (javametricsAgentConnector != null) {
 			javametricsAgentConnector.sendDataToAgent(data);
+			
+			// TEMPORARY ... Send directly to listener
+			javametricsAgentConnector.receiveData("api", data.getBytes());
 		}
 	}
-	
+
 	/**
 	 * Send data to Javametrics
-	 * @param topicName the name of the topic to send data on
-	 * @param payload the JSON formatted String to send
+	 * 
+	 * @param topicName
+	 *            the name of the topic to send data on
+	 * @param payload
+	 *            the JSON formatted String to send
 	 */
 	public void sendJSON(String topicName, String payload) {
-		getTopic(topicName).sendJSON(payload);		
+		getTopic(topicName).sendJSON(payload);
 	}
-	
+
 	/**
 	 * Returns true if the given topic is enabled
+	 * 
 	 * @param topicName
 	 * @return
 	 */
@@ -88,5 +98,4 @@ public class Javametrics
 		return getTopic(topicName).isEnabled();
 	}
 
-	
 }
