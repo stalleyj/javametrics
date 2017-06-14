@@ -15,15 +15,14 @@
  ******************************************************************************/
 package com.ibm.javametrics;
 
-public class JavametricsAgentConnector
-{
-	
+public class JavametricsAgentConnector {
+
 	private static native void regListener(JavametricsAgentConnector jm);
 
 	private static native void deregListener();
 
 	private static native void sendMessage(String message, byte[] id);
-	
+
 	private static native void pushDataToAgent(String data);
 
 	private static final String CLIENT_ID = "localNative";//$NON-NLS-1$
@@ -31,11 +30,10 @@ public class JavametricsAgentConnector
 	private static final String DATASOURCE_TOPIC = "/datasource";//$NON-NLS-1$
 	private static final String CONFIGURATION_TOPIC = "configuration/";//$NON-NLS-1$
 	private static final String HISTORY_TOPIC = "/history/";//$NON-NLS-1$
-	
+
 	private JavametricsListener javametricsListener;
-	
+
 	public JavametricsAgentConnector(JavametricsListener jml) {
-		super();
 
 		this.javametricsListener = jml;
 
@@ -48,9 +46,9 @@ public class JavametricsAgentConnector
 
 		// Need to request the method dictionary
 		sendMessage("methoddictionary", "");//$NON-NLS-1$
-		
+
 		Javametrics.getJavametrics().registerJavametricsAgentConnector(this);
-		
+
 	}
 
 	public void sendMessage(String name, String command, String... params) {
@@ -76,17 +74,17 @@ public class JavametricsAgentConnector
 			String contents;
 			contents = new String(data);
 			System.out.println("contents is " + contents);
-		} else { // TODO: should filter here and aggregate
-			javametricsListener.emit(new String(data));
+		} else {
+			javametricsListener.receive(dataType, new String(data));
 		}
 
 		if (type.equalsIgnoreCase("memory")) {
 			System.out.println("data is " + new String(data));
 		}
-		
+
 	}
-	
+
 	public void sendDataToAgent(String data) {
-		pushDataToAgent(data);	
+		pushDataToAgent(data);
 	}
 }
