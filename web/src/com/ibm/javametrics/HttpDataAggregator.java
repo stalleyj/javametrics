@@ -60,7 +60,7 @@ public class HttpDataAggregator {
 			urlData = new HttpUrlData();
 		}
 		urlData.hits += 1;
-		urlData.averageResponseTime = (urlData.averageResponseTime * (urlData.hits-1))/urlData.hits;
+		urlData.averageResponseTime = ((urlData.averageResponseTime * (urlData.hits-1)) + requestDuration)/urlData.hits;
 		responseTimes.put(requestUrl, urlData);
 	}
 	
