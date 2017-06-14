@@ -1,12 +1,16 @@
 package com.ibm.javametrics;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -28,18 +32,22 @@ public class JavametricsWebSocket implements JavametricsListener {
 	ScheduledExecutorService exec;
 
 	private Set<Session> openSessions = new HashSet<>();
-	
+
 	private JavametricsAgentConnector connector;
+
+	private HttpDataAggregator aggregateHttpData;
 
 	public JavametricsWebSocket() {
 		super();
-		
+
 		this.connector = new JavametricsAgentConnector(this);
+		this.aggregateHttpData = new HttpDataAggregator();
 
 		exec = Executors.newSingleThreadScheduledExecutor();
 		exec.scheduleAtFixedRate(this::emitMemoryUsage, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitCPUUsage, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitMemoryPoolUsage, 2, 2, TimeUnit.SECONDS);
+		exec.scheduleAtFixedRate(this::emitHttp, 2, 2, TimeUnit.SECONDS);
 
 	}
 
@@ -95,14 +103,7 @@ public class JavametricsWebSocket implements JavametricsListener {
 		if (system >= 0 && process >= 0) {
 			String message = "{\"topic\": \"cpu\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
 					+ ", \"system\": \"" + system + "\"" + ", \"process\": \"" + process + "\"" + "}}";
-			openSessions.forEach((session) -> {
-				try {
-					session.getBasicRemote().sendText(message);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-			});
+			emit(message);
 		}
 	}
 
@@ -115,17 +116,10 @@ public class JavametricsWebSocket implements JavametricsListener {
 			String message = "{\"topic\": \"memoryPools\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
 					+ ", \"usedHeapAfterGC\": \"" + usedHeapAfterGC + "\"" + ", \"usedHeap\": \"" + usedHeap + "\""
 					+ ", \"usedNative\": \"" + usedNative + "\"" + "}}";
-			openSessions.forEach((session) -> {
-				try {
-					session.getBasicRemote().sendText(message);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-			});
+			emit(message);
 		}
 	}
-	
+
 	public void emit(String message) {
 		openSessions.forEach((session) -> {
 			try {
@@ -133,8 +127,41 @@ public class JavametricsWebSocket implements JavametricsListener {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		});
 	}
 
+	private void emitHttp() {
+		HttpDataAggregator httpData;
+		String httpUrlData;
+		synchronized (aggregateHttpData) {
+			if (aggregateHttpData.total == 0) {
+				return;
+			}
+			httpData = aggregateHttpData.getCurrent();
+			httpUrlData = aggregateHttpData.urlDatatoJsonString();
+			
+			aggregateHttpData.clear();	
+		}
+		emit(httpData.toJsonString());
+		emit(httpUrlData);
+	}
+
+
+	@Override
+	public void receive(String topic, String data) {
+		if (topic.equals("api")) {
+			JsonReader jsonReader = Json.createReader(new StringReader(data));
+			JsonObject jsonObject = jsonReader.readObject();
+			String topicName = jsonObject.getString("topic", null);
+			if (topicName != null) {
+				if (topicName.equals("http")) {
+					synchronized (aggregateHttpData) {
+						aggregateHttpData.aggregate(jsonObject.getJsonObject("payload"));
+					}
+					return;
+				}
+			}
+		}
+		emit(data);
+	}
 }
