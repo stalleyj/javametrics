@@ -23,7 +23,7 @@ import javax.websocket.server.ServerEndpoint;
  */
 
 @ServerEndpoint(value = "/", subprotocols = "javametrics-dash")
-public class JavametricsWebSocket implements JavametricsListener {
+public class JavametricsWebApp implements JavametricsListener {
 
 	private Set<Session> openSessions = new HashSet<>();
 	
@@ -31,7 +31,7 @@ public class JavametricsWebSocket implements JavametricsListener {
 
 	private HttpDataAggregator aggregateHttpData;
 
-	public JavametricsWebSocket() {
+	public JavametricsWebApp() {
 		super();
 		System.out.println("starting websocket");
 		this.connector = new JavametricsAgentConnector(this);
