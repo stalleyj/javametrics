@@ -7,3 +7,4 @@ core*.*
 /.metadata
 /clientdb.xml
 /build/
+/.project
