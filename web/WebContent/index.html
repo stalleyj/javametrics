@@ -100,9 +100,10 @@
 <script type="text/javascript" src="js/memChart.js"></script>
 <script type="text/javascript" src="js/memPoolsChart.js"></script>
 <script>
-    var myurl = location.host;
+    let hostname = location.host;
+    let pathname = location.pathname
     
-    var client = new WebSocket("ws://" + myurl + "/javametrics","javametrics-dash")
+    let client = new WebSocket("ws://" + hostname + pathname,"javametrics-dash")
 
     client.onmessage = function(message) {
         console.log("Message received: " + message.data);
