@@ -22,13 +22,19 @@ import java.util.concurrent.TimeUnit;
 import com.ibm.javametrics.dataproviders.CPUDataProvider;
 import com.ibm.javametrics.dataproviders.MemoryPoolDataProvider;
 
+/**
+ * Uses MBean data providers to send data to the Javametrics agent at regular intervals.
+ */
 public class JavametricsMBeanConnector {
 
 	
-	ScheduledExecutorService exec;
+	private ScheduledExecutorService exec;
 	private JavametricsAgentConnector javametricsAgentConnector;
 
-	
+	/**
+	 * Create a JavametricsMBeanConnector
+	 * @param agentConnector JavametricsAgentConnector - required so data can be sent to the agent
+	 */
 	public JavametricsMBeanConnector(JavametricsAgentConnector agentConnector) {
 		this.javametricsAgentConnector = agentConnector;
 		exec = Executors.newSingleThreadScheduledExecutor();

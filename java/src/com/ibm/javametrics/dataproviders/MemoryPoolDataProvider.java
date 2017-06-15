@@ -21,10 +21,16 @@ import java.lang.management.MemoryType;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Uses MBeans to provide heap and other memory statistics
+ *
+ */
 public class MemoryPoolDataProvider
 {
 
-
+	/**
+	 * Get the current heap size in bytes
+	 */
 	public static long getHeapMemory() {
 		long total = 0;
 		List<MemoryPoolMXBean> memoryPoolBeans = ManagementFactory.getMemoryPoolMXBeans();
@@ -37,6 +43,9 @@ public class MemoryPoolDataProvider
 		return total;
 	}
 
+	/**
+	 * Get the most recent heap size immediately after GC in bytes
+	 */
 	public static long getUsedHeapAfterGC() {
 		long total = 0;
 		List<MemoryPoolMXBean> memoryPoolBeans = ManagementFactory.getMemoryPoolMXBeans();
@@ -49,6 +58,9 @@ public class MemoryPoolDataProvider
 		return total;
 	}
 
+	/**
+	 * Get the size of native memory used by the JVM in bytes
+	 */
 	public static long getNativeMemory() {
 		long total = 0;
 		List<MemoryPoolMXBean> memoryPoolBeans = ManagementFactory.getMemoryPoolMXBeans();

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.json.Json;
+import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.websocket.OnClose;
@@ -95,25 +96,30 @@ public class JavametricsWebApp implements JavametricsListener {
 	}
 
 	@Override
-	public void receive(String topic, String data) {
-		if (topic.equals("api")) {
+	public void receive(String pluginName, String data) {
+		if (pluginName.equals("api")) {
 			List<String> split = splitIntoJSONObjects(data);
 			//System.out.println("data = " + data.toString());
 			for (Iterator<String> iterator = split.iterator(); iterator.hasNext();) {
 				String jsonStr = iterator.next();
 				//System.out.println("jsonStr = " + jsonStr.toString());
 				JsonReader jsonReader = Json.createReader(new StringReader(jsonStr));
-				JsonObject jsonObject = jsonReader.readObject();
-				//System.out.println(jsonObject.toString());
-				String topicName = jsonObject.getString("topic", null);
-				if (topicName != null) {
-					if (topicName.equals("http")) {
-						synchronized (aggregateHttpData) {
-							aggregateHttpData.aggregate(jsonObject.getJsonObject("payload"));
+				try {
+					JsonObject jsonObject = jsonReader.readObject();
+					//System.out.println(jsonObject.toString());
+					String topicName = jsonObject.getString("topic", null);
+					if (topicName != null) {
+						if (topicName.equals("http")) {
+							synchronized (aggregateHttpData) {
+								aggregateHttpData.aggregate(jsonObject.getJsonObject("payload"));
+							}
+						} else {
+							emit(jsonObject.toString());
 						}
-					} else {
-						emit(jsonObject.toString());
 					}
+				} catch (JsonException je) {
+					// Skip this object, log the exception and keep trying with the rest of the list
+					je.printStackTrace();
 				}
 			}
 			emitHttp();
@@ -128,6 +134,10 @@ public class JavametricsWebApp implements JavametricsListener {
 	private List<String> splitIntoJSONObjects(String data) {
 		List<String> strings = new ArrayList<String>();
 		int index = 0;
+		// Find first opening bracket
+		while(index < data.length() && data.charAt(index) != '{') {
+			index ++;
+		}
 		int closingBracket = index + 1;
 		int bracketCounter = 1;
 		while(index < data.length() - 1 && closingBracket < data.length()) {
@@ -145,8 +155,11 @@ public class JavametricsWebApp implements JavametricsListener {
 			if (found) {
 				strings.add(data.substring(index, closingBracket + 1));
 				index = closingBracket + 1;
+				// Find next opening bracket and reset counters
+				while(index < data.length() && data.charAt(index) != '{') {
+					index ++;
+				}
 				closingBracket = index + 1;
-				found = false;
 				bracketCounter = 1;
 			} else {
 				closingBracket++;
