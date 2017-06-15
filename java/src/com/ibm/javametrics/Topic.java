@@ -17,7 +17,7 @@ package com.ibm.javametrics;
 
 /**
  * A Javametrics topic on which data can be emitted.  
- * Create a new topic by calling Javametrics.getJavametrics().createTopic(..)
+ * Create a new topic by calling Javametrics.createTopic(..)
  * Topics created this way are registered with the Javametrics agent and are 'on' by default.
  */
 public interface Topic

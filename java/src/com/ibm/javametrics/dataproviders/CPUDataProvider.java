@@ -18,12 +18,22 @@ package com.ibm.javametrics.dataproviders;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 
+/**
+ * Uses MBeans to get CPU statistics
+ *
+ */
 public class CPUDataProvider {
 
+	/**
+	 * Get the system CPU usage
+	 */
 	public static double getSystemCpuLoad() {
 		return getCpuLoad(true);
 	}
 
+	/**
+	 * Get the Java process CPU usage
+	 */
 	public static double getProcessCpuLoad() {
 		return getCpuLoad(false);
 	}
@@ -70,12 +80,8 @@ public class CPUDataProvider {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
 		}
-
 		return result;
-
-
 	}
 
 }
