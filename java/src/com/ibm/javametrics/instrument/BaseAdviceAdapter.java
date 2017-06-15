@@ -34,7 +34,7 @@ public class BaseAdviceAdapter extends AdviceAdapter {
 		this.methodName = name;
 	}
 
-	protected void insertMethodTimer() {
+	protected void injectMethodTimer() {
 		methodEntertime = newLocal(Type.LONG_TYPE);
 		invokeStatic(Type.getType(System.class), Method.getMethod("long currentTimeMillis()"));
 		storeLocal(methodEntertime);

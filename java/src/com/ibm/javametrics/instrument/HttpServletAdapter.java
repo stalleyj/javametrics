@@ -36,14 +36,14 @@ public class HttpServletAdapter extends ServletCallBackAdapter {
 	@Override
 	protected void onMethodEnter() {
 		if (methodsToInstrument.contains(methodName)) {
-			insertMethodTimer();
+			injectMethodTimer();
 		}
 	}
 
 	@Override
 	protected void onMethodExit(int opcode) {
 		if (methodsToInstrument.contains(methodName)) {
-			insertServletCallback();
+			injectServletCallback();
 		}
 	}
 
