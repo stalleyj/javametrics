@@ -96,6 +96,52 @@ public class JavametricsWebApp implements JavametricsListener {
 		emit(httpData.toJsonString());
 		emit(httpUrlData);
 	}
+	
+	private void emitEnv(String data) {
+		//split the data into lines containing key/value pairs
+		String[] envPairs = data.split("\n");
+		//put the pairs into a map
+		HashMap<String, String> envMap = new HashMap<String, String>();
+		for (int i = 0; i < envPairs.length; i++) {
+			if (envPairs[i].contains("=")) {
+				//only split on the first equals
+				String[] keyValue = envPairs[i].split("=", 2);
+				if (1 == keyValue.length) {
+					//don't have a value for this key - use the empty string
+					envMap.put(keyValue[0], "");
+				} else {
+					envMap.put(keyValue[0], keyValue[1]);
+				}
+			}
+		}
+		//currently we display 4 items from the environment in the dash
+		String commandLineValue = envMap.get("command.line");
+		String environmentHOSTNAMEValue = envMap.get("environment.HOSTNAME");
+		String osArchValue = envMap.get("os.arch");
+		String numberOfProcessorsValue = envMap.get("number.of.processors");
+		
+		//check that we don't have null values
+		if (null != commandLineValue && null != environmentHOSTNAMEValue && null != osArchValue && null != numberOfProcessorsValue) {
+			//construct the expected payload
+			StringBuffer messageBuf = new StringBuffer("{\"topic\":\"env\",\"payload\":[");
+			messageBuf.append("{\"Parameter\":\"Command Line\",\"Value\":\"");
+			// remove quote marks (") in command.line value so JSON parse doesn't get confused later, also escape backslashes
+			// this looks stupid, but \ needs to be escaped once for Java strings, then escaped again for regex
+			messageBuf.append(commandLineValue.replaceAll("\"", "").replaceAll("\\\\", "\\\\\\\\"));
+			messageBuf.append("\"},");
+			messageBuf.append("{\"Parameter\":\"Hostname\",\"Value\":\"");
+			messageBuf.append(environmentHOSTNAMEValue);
+			messageBuf.append("\"},");
+			messageBuf.append("{\"Parameter\":\"OS Architecture\",\"Value\":\"");
+			messageBuf.append(osArchValue);
+			messageBuf.append("\"},");
+			messageBuf.append("{\"Parameter\":\"Number of Processors\",\"Value\":\"");
+			messageBuf.append(numberOfProcessorsValue);
+			messageBuf.append("\"}]}");
+		
+			emit(messageBuf.toString());
+		}
+	}
 
 	@Override
 	public void receive(String topic, String data) {
@@ -118,50 +164,8 @@ public class JavametricsWebApp implements JavametricsListener {
 				}
 			}
 			emitHttp();
-		}
-		if (topic.contains("common_env")) {
-			//split the data into lines containing key/value pairs
-			String[] envPairs = data.split("\n");
-			//put the pairs into a map
-			HashMap<String, String> envMap = new HashMap<String, String>();
-			for (int i = 0; i < envPairs.length; i++) {
-				if (envPairs[i].contains("=")) {
-					//only split on the first equals
-					String[] keyValue = envPairs[i].split("=", 2);
-					if (1 == keyValue.length) {
-						//don't have a value for this key - use the empty string
-						envMap.put(keyValue[0], "");
-					} else {
-						envMap.put(keyValue[0], keyValue[1]);
-					}
-				}
-			}
-			
-			String commandLineValue = envMap.get("command.line");
-			String environmentHOSTNAMEValue = envMap.get("environment.HOSTNAME");
-			String osArchValue = envMap.get("os.arch");
-			String numberOfProcessorsValue = envMap.get("number.of.processors");
-			//check that we don't have null values
-			if (null != commandLineValue && null != environmentHOSTNAMEValue && null != osArchValue && null != numberOfProcessorsValue) {
-				//construct the expected payload
-				StringBuffer messageBuf = new StringBuffer("{\"topic\":\"env\",\"payload\":[");
-				messageBuf.append("{\"Parameter\":\"Command Line\",\"Value\":\"");
-				// replace " in command.line value so JSON parse doesn't get confused, also escape backslashes
-				// this looks stupid, but \ needs to be escaped once for Java strings, then escaped again for regex
-				messageBuf.append(commandLineValue.replaceAll("\"", "").replaceAll("\\\\", "\\\\\\\\"));
-				messageBuf.append("\"},");
-				messageBuf.append("{\"Parameter\":\"Hostname\",\"Value\":\"");
-				messageBuf.append(environmentHOSTNAMEValue);
-				messageBuf.append("\"},");
-				messageBuf.append("{\"Parameter\":\"OS Architecture\",\"Value\":\"");
-				messageBuf.append(osArchValue);
-				messageBuf.append("\"},");
-				messageBuf.append("{\"Parameter\":\"Number of Processors\",\"Value\":\"");
-				messageBuf.append(numberOfProcessorsValue);
-				messageBuf.append("\"}]}");
-			
-				emit(messageBuf.toString());
-			}
+		} else if (topic.contains("common_env")) {
+			emitEnv(data);
 		}
 	}
 
