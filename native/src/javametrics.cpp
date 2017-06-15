@@ -339,6 +339,7 @@ void addAPIPlugin() {
 	}
 
 	agent->addPlugin(agentLibPath, "apiplugin");
+    agent->addPlugin(agentLibPath, "envplugin");
 
 	registerListener =
 			(void (*)(
