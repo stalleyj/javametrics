@@ -25,7 +25,7 @@ import com.ibm.javametrics.Javametrics;
 public class ServletCallback {
 
 	@SuppressWarnings("unchecked")
-	public static void doGetCallback(long requestTime, Object request, Object response) {
+	public static void after(long requestTime, Object request, Object response) {
 
 		HttpData data = new HttpData();
 		data.setRequestTime(requestTime);
@@ -66,30 +66,29 @@ public class ServletCallback {
 					}
 				}
 			}
+			
+			data.setDuration(System.currentTimeMillis() - requestTime);
+			
+			if (Agent.debug) {
+				System.err.println("{\"http\" : " + data.toJsonString() + "}");
+			}
+			
+			Javametrics.sendJSON("http", data.toJsonString());
 
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
+		} catch (Exception e) {
+			// Log any exception caused by our injected code
+			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
 		}
-		data.setDuration(System.currentTimeMillis() - requestTime);
-		
-		if (Agent.debug) {
-			System.err.println("{\"http\" : " + data.toJsonString() + "}");
-		}
-
-		Javametrics.sendJSON("http", data.toJsonString());
 
 	}
 
