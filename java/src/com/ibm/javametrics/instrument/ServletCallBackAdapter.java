@@ -29,7 +29,7 @@ public class ServletCallBackAdapter extends BaseAdviceAdapter {
 		loadLocal(methodEntertime);
 		loadArgs();
 		invokeStatic(Type.getType("com/ibm/javametrics/instrument/ServletCallback"),
-				Method.getMethod("void doGetCallback(long, java.lang.Object, java.lang.Object)"));
+				Method.getMethod("void after(long, java.lang.Object, java.lang.Object)"));
 	}
 
 }
