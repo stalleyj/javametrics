@@ -19,12 +19,21 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
 
+/**
+ * MethodVisitor providing common servlet instrumentation
+ *
+ */
 public class ServletCallBackAdapter extends BaseAdviceAdapter {
 
 	protected ServletCallBackAdapter(String className, MethodVisitor mv, int access, String name, String desc) {
 		super(className, mv, access, name, desc);
 	}
 
+	/**
+	 * Inject a callback to our servlet handler. To be called from
+	 * onMethodExit(...). Assumes BaseAdviceAdapter.injectMethodTimer() was
+	 * called during onMethodEnter(...)
+	 */
 	protected void injectServletCallback() {
 		loadLocal(methodEntertime);
 		loadArgs();
