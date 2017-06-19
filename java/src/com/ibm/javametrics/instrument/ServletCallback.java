@@ -22,14 +22,35 @@ import java.util.Enumeration;
 
 import com.ibm.javametrics.Javametrics;
 
+/**
+ * Class containing static methods to be called from injected code
+ *
+ */
 public class ServletCallback {
 
+	/**
+	 * Called before method exit for HTTP/JSP requests public static void
+	 * 
+	 * True method signature: void after(long requestTime, HttpServletRequest
+	 * request, HttpServletResponse response)
+	 * 
+	 * @param requestTime
+	 *            timestamp in ms of request
+	 * @param request
+	 *            HttpServletRequest
+	 * @param response
+	 *            HttpServletResponse
+	 */
 	@SuppressWarnings("unchecked")
 	public static void after(long requestTime, Object request, Object response) {
 
 		HttpData data = new HttpData();
 		data.setRequestTime(requestTime);
 
+		/*
+		 * Use reflection to access the HttpServletRequest/Response as using the
+		 * true method signature caused ClassLoader issues.
+		 */
 		Class<?> reqClass = request.getClass();
 		Class<?> respClass = response.getClass();
 		try {
@@ -66,13 +87,16 @@ public class ServletCallback {
 					}
 				}
 			}
-			
+
 			data.setDuration(System.currentTimeMillis() - requestTime);
-			
+
 			if (Agent.debug) {
 				System.err.println("{\"http\" : " + data.toJsonString() + "}");
 			}
-			
+
+			/*
+			 * Send the http request data to the Javametrics agent
+			 */
 			Javametrics.sendJSON("http", data.toJsonString());
 
 		} catch (NoSuchMethodException e) {

@@ -17,6 +17,10 @@ package com.ibm.javametrics.instrument;
 
 import org.objectweb.asm.MethodVisitor;
 
+/**
+ * MethodVisitor to inject Http JSP instrumentation
+ *
+ */
 public class HttpJspPageAdapter extends ServletCallBackAdapter {
 
 	protected HttpJspPageAdapter(String className, MethodVisitor mv, int access, String name, String desc) {

@@ -19,6 +19,10 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * An instance of this ClassVisitor is created for each class being loaded.
+ *
+ */
 public class ClassAdapter extends ClassVisitor implements Opcodes {
 
 	String className;
@@ -26,25 +30,47 @@ public class ClassAdapter extends ClassVisitor implements Opcodes {
 	private boolean instrumentHttpServlet = false;
 	private boolean instrumentJsp = false;
 
-	public ClassAdapter(ClassVisitor cv, String className) {
+	/**
+	 * @param cv
+	 */
+	public ClassAdapter(ClassVisitor cv) {
 		super(ASM5, cv);
-		this.className = className;
 	}
 
+	/*
+	 * First visitor method called during class parsing
+	 * 
+	 * Here we determine which classes/methods to instrument. This is currently
+	 * hard-coded here but could be implemented via configuration files
+	 */
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 
+		className = name;
+
+		/*
+		 * HTTP request instrumentation
+		 * 
+		 * Servlets: instrument any class that is a subclass of HttpServlet
+		 * 
+		 * JSP pages: instrument any class that implements the HttpJspPage
+		 * interface
+		 */
 		if (superName != null)
 			if (superName.equals("javax/servlet/http/HttpServlet")) {
 				instrumentHttpServlet = true;
 			} else if (superName.equals("com/ibm/ws/jsp/runtime/HttpJspBase")) {
+				/*
+				 * For Liberty the HttpJspBase class implements HttpJspPage but
+				 * is later subclassed so we need to instrument the subclasses.
+				 */
+				// TODO: work out how to inspect the class hierarchy to find
+				// classes we need to instrument
 				instrumentJsp = true;
 			}
 
 		if (interfaces != null) {
-			for (
-
-			String iface : interfaces) {
+			for (String iface : interfaces) {
 				if (iface.equals("javax/servlet/jsp/HttpJspPage")) {
 					instrumentJsp = true;
 				}
@@ -53,11 +79,20 @@ public class ClassAdapter extends ClassVisitor implements Opcodes {
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
 
+	/*
+	 * Called for each method in the class
+	 * 
+	 * We return a new instance of a class specific MethodVisitor for each
+	 * method we need to instrument
+	 */
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 
+		/*
+		 * The order here is important as JSP may also extend HttpServlet
+		 */
 		if (instrumentJsp) {
 			mv = new HttpJspPageAdapter(className, mv, access, name, desc);
 		} else if (instrumentHttpServlet) {

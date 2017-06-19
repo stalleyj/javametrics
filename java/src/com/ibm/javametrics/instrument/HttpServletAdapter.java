@@ -19,6 +19,10 @@ import java.util.HashSet;
 
 import org.objectweb.asm.MethodVisitor;
 
+/**
+ * MethodVisitor to inject Http servlet instrumentation
+ *
+ */
 public class HttpServletAdapter extends ServletCallBackAdapter {
 
 	static HashSet<String> methodsToInstrument = new HashSet<String>();
