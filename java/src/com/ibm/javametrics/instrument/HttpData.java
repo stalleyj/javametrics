@@ -20,6 +20,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * HTTP request data
+ */
 public class HttpData {
 
 	long requestTime = 0;
@@ -70,7 +73,10 @@ public class HttpData {
 		this.contentType = contentType;
 	}
 
-	public String getHeaders() {
+	/**
+	 * @return JSON string representing response headers
+	 */
+	private String getHeaders() {
 
 		StringBuilder sb = new StringBuilder("\"header\":{");
 		if (headers != null) {
@@ -101,6 +107,9 @@ public class HttpData {
 		headers.put(headerName, header);
 	}
 
+	/**
+	 * @return JSON string repreesenting request headers
+	 */
 	public String getRequestHeaders() {
 		StringBuilder sb = new StringBuilder("\"requestHeader\":{");
 		if (requestHeaders != null) {
@@ -119,7 +128,7 @@ public class HttpData {
 				first = false;
 			}
 		}
-		
+
 		sb.append('}');
 
 		return sb.toString();
@@ -132,6 +141,9 @@ public class HttpData {
 		requestHeaders.put(headerName, header);
 	}
 
+	/**
+	 * @return JSON string representing the HTTP request data
+	 */
 	public String toJsonString() {
 		StringBuilder sb = new StringBuilder("{\"time\":");
 		sb.append(requestTime);
@@ -151,7 +163,7 @@ public class HttpData {
 		sb.append(',');
 		sb.append(getRequestHeaders());
 		sb.append('}');
-		
+
 		return sb.toString();
 	}
 

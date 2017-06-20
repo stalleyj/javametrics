@@ -22,7 +22,13 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.Method;
 
+/**
+ * MethodVisitor to provide common instrumentation functions
+ *
+ */
 public class BaseAdviceAdapter extends AdviceAdapter {
+
+	private static final String CURRENT_TIME_MILLIS_METHODNAME = "long currentTimeMillis()";
 
 	protected String className;
 	protected String methodName;
@@ -34,10 +40,17 @@ public class BaseAdviceAdapter extends AdviceAdapter {
 		this.methodName = name;
 	}
 
+	/**
+	 * Inject a local variable containing timestamp at method entry
+	 */
 	protected void injectMethodTimer() {
 		methodEntertime = newLocal(Type.LONG_TYPE);
-		invokeStatic(Type.getType(System.class), Method.getMethod("long currentTimeMillis()"));
+		invokeStatic(Type.getType(System.class), Method.getMethod(CURRENT_TIME_MILLIS_METHODNAME));
 		storeLocal(methodEntertime);
+
+		/*
+		 * Inject debug information
+		 */
 		if (Agent.debug) {
 			getStatic(Type.getType(System.class), "err", Type.getType(PrintStream.class));
 			push(">> Calling method: " + className + "." + methodName);

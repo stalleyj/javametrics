@@ -19,17 +19,38 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
 
+/**
+ * MethodVisitor providing common servlet instrumentation
+ *
+ */
 public class ServletCallBackAdapter extends BaseAdviceAdapter {
+
+	private static final String SERVLET_CALLBACK_TYPE = "com/ibm/javametrics/instrument/ServletCallback";
+	private static final String SERVLET_CALLBACK_METHOD = "void after(long, java.lang.Object, java.lang.Object)";
 
 	protected ServletCallBackAdapter(String className, MethodVisitor mv, int access, String name, String desc) {
 		super(className, mv, access, name, desc);
 	}
 
-	protected void injectServletCallback() {
+	@Override
+	protected void onMethodEnter() {
+		injectMethodTimer();
+	}
+
+	@Override
+	protected void onMethodExit(int opcode) {
+		injectServletCallback();
+	}
+
+	/**
+	 * Inject a callback to our servlet handler. To be called from
+	 * onMethodExit(...). Assumes BaseAdviceAdapter.injectMethodTimer() was
+	 * called during onMethodEnter(...)
+	 */
+	private void injectServletCallback() {
 		loadLocal(methodEntertime);
 		loadArgs();
-		invokeStatic(Type.getType("com/ibm/javametrics/instrument/ServletCallback"),
-				Method.getMethod("void after(long, java.lang.Object, java.lang.Object)"));
+		invokeStatic(Type.getType(SERVLET_CALLBACK_TYPE), Method.getMethod(SERVLET_CALLBACK_METHOD));
 	}
 
 }

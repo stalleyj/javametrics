@@ -22,28 +22,56 @@ import java.util.Enumeration;
 
 import com.ibm.javametrics.Javametrics;
 
+/**
+ * Class containing static methods to be called from injected code
+ *
+ */
 public class ServletCallback {
 
+	private static final String HTTP_TOPIC = "http";
+	private static final String GET_REQUEST_URL = "getRequestURL";
+	private static final String GET_METHOD = "getMethod";
+	private static final String GET_CONTENT_TYPE = "getContentType";
+	private static final String GET_HEADER_NAMES = "getHeaderNames";
+	private static final String GET_HEADER = "getHeader";
+
+	/**
+	 * Called before method exit for HTTP/JSP requests public static void
+	 * 
+	 * True method signature: void after(long requestTime, HttpServletRequest
+	 * request, HttpServletResponse response)
+	 * 
+	 * @param requestTime
+	 *            timestamp in ms of request
+	 * @param request
+	 *            HttpServletRequest
+	 * @param response
+	 *            HttpServletResponse
+	 */
 	@SuppressWarnings("unchecked")
 	public static void after(long requestTime, Object request, Object response) {
 
 		HttpData data = new HttpData();
 		data.setRequestTime(requestTime);
 
+		/*
+		 * Use reflection to access the HttpServletRequest/Response as using the
+		 * true method signature caused ClassLoader issues.
+		 */
 		Class<?> reqClass = request.getClass();
 		Class<?> respClass = response.getClass();
 		try {
-			Method getRequestURL = reqClass.getMethod("getRequestURL");
+			Method getRequestURL = reqClass.getMethod(GET_REQUEST_URL);
 			data.setUrl(((StringBuffer) getRequestURL.invoke(request)).toString());
 
-			Method getMethod = reqClass.getMethod("getMethod");
+			Method getMethod = reqClass.getMethod(GET_METHOD);
 			data.setMethod((String) getMethod.invoke(request));
 
-			Method getContentType = respClass.getMethod("getContentType");
+			Method getContentType = respClass.getMethod(GET_CONTENT_TYPE);
 			data.setContentType((String) getContentType.invoke(response));
 
-			Method getHeaders = respClass.getMethod("getHeaderNames");
-			Method getHeader = respClass.getMethod("getHeader", String.class);
+			Method getHeaders = respClass.getMethod(GET_HEADER_NAMES);
+			Method getHeader = respClass.getMethod(GET_HEADER, String.class);
 			Collection<String> headers = (Collection<String>) getHeaders.invoke(response);
 			if (headers != null) {
 				for (String headerName : headers) {
@@ -54,8 +82,8 @@ public class ServletCallback {
 				}
 			}
 
-			Method getReqHeaders = reqClass.getMethod("getHeaderNames");
-			Method getReqHeader = reqClass.getMethod("getHeader", String.class);
+			Method getReqHeaders = reqClass.getMethod(GET_HEADER_NAMES);
+			Method getReqHeader = reqClass.getMethod(GET_HEADER, String.class);
 			Enumeration<String> reqHeaders = (Enumeration<String>) getReqHeaders.invoke(request);
 			if (reqHeaders != null) {
 				while (reqHeaders.hasMoreElements()) {
@@ -66,14 +94,17 @@ public class ServletCallback {
 					}
 				}
 			}
-			
+
 			data.setDuration(System.currentTimeMillis() - requestTime);
-			
+
 			if (Agent.debug) {
 				System.err.println("{\"http\" : " + data.toJsonString() + "}");
 			}
-			
-			Javametrics.sendJSON("http", data.toJsonString());
+
+			/*
+			 * Send the http request data to the Javametrics agent
+			 */
+			Javametrics.sendJSON(HTTP_TOPIC, data.toJsonString());
 
 		} catch (NoSuchMethodException e) {
 			System.err.println("Javametrics: Servlet callback exception: " + e.toString());

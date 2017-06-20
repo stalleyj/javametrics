@@ -23,15 +23,24 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
+/**
+ * A class file transformer registered by the javaagent
+ *
+ */
 public class ClassTransformer implements ClassFileTransformer {
 
+	/*
+	 * Called during class loading.
+	 * 
+	 * Use ASM to modify class bytecode if necessary using the ClassAdaptor
+	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
 		ClassReader cr = new ClassReader(classfileBuffer);
 		ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES);
-		ClassVisitor cv = new ClassAdapter(cw, className);
+		ClassVisitor cv = new ClassAdapter(cw);
 		cr.accept(cv, ClassReader.SKIP_FRAMES);
 		return cw.toByteArray();
 	}

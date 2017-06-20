@@ -17,15 +17,34 @@ package com.ibm.javametrics.instrument;
 
 import java.lang.instrument.Instrumentation;
 
+/**
+ * Java instrumentation agent
+ * 
+ * Invoked by the -javaagent:jarpath=[options] command line parameter Entry
+ * point is defined in the jar manifest as: Premain-Class:
+ * com.ibm.javametrics.instrument.Agent
+ *
+ */
 public class Agent {
-	
+
 	public static boolean debug = (System.getProperty("com.ibm.javamatrics.javaagent.debug", "false").equals("true"));
 
+	/**
+	 * Entry point for the agent via -javaagent command line parameter
+	 * 
+	 * @param agentArgs
+	 * @param inst
+	 */
 	public static void premain(String agentArgs, Instrumentation inst) {
+		// Register our class transformer
 		inst.addTransformer(new ClassTransformer());
 	}
 
-	public static void agentmain(String agentArgs, Instrumentation inst){
+	/**
+	 * @param agentArgs
+	 * @param inst
+	 */
+	public static void agentmain(String agentArgs, Instrumentation inst) {
 		premain(agentArgs, inst);
 	};
 }
