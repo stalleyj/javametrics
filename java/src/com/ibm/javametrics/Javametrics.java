@@ -35,10 +35,13 @@ public class Javametrics {
 	 * @return
 	 */
 	public static Topic getTopic(String topicName) {
+		if(topicName == null || topicName.length() == 0 ) {
+			throw new Error("Topic names must not be null or 0 length");
+		}
 		if (topics.containsKey(topicName)) {
 			return topics.get(topicName);
 		} else {
-			Topic topic = new UserTopic(topicName);
+			Topic topic = new TopicImpl(topicName);
 			topics.put(topicName, topic);
 			return topic;
 		}
@@ -64,6 +67,12 @@ public class Javametrics {
 	 *            the JSON formatted String to send
 	 */
 	public static void sendJSON(String topicName, String payload) {
+		if(topicName == null || topicName.length() == 0 ) {
+			throw new Error("Topic names must not be null or 0 length");
+		}
+		if(payload == null || payload.length() == 0) {
+			throw new Error("Payload must exist");
+		}
 		getTopic(topicName).sendJSON(payload);
 	}
 
@@ -74,6 +83,9 @@ public class Javametrics {
 	 * @return
 	 */
 	public static boolean isEnabled(String topicName) {
+		if(topicName == null || topicName.length() == 0 ) {
+			throw new Error("Topic names must not be null or 0 length");
+		}
 		return getTopic(topicName).isEnabled();
 	}
 
