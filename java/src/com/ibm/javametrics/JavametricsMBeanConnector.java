@@ -20,6 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.ibm.javametrics.dataproviders.CPUDataProvider;
+import com.ibm.javametrics.dataproviders.GCDataProvider;
 import com.ibm.javametrics.dataproviders.MemoryPoolDataProvider;
 
 /**
@@ -38,18 +39,16 @@ public class JavametricsMBeanConnector {
 	public JavametricsMBeanConnector(JavametricsAgentConnector agentConnector) {
 		this.javametricsAgentConnector = agentConnector;
 		exec = Executors.newSingleThreadScheduledExecutor();
-		exec.scheduleAtFixedRate(this::emitMemoryUsage, 2, 2, TimeUnit.SECONDS);
+		exec.scheduleAtFixedRate(this::emitGCData, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitCPUUsage, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitMemoryPoolUsage, 2, 2, TimeUnit.SECONDS);
 	}
 
-	private void emitMemoryUsage() {
+	private void emitGCData() {
 		long timeStamp = System.currentTimeMillis();
-		long memTotal = Runtime.getRuntime().totalMemory();
-		long memFree = Runtime.getRuntime().freeMemory();
-		long memUsed = memTotal - memFree;
-		String message = "{\"topic\": \"memory\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
-				+ ", \"physical\": \"" + memTotal + "\"" + ", \"physical_used\": \"" + memUsed + "\"" + "}}";
+		double gcTime = GCDataProvider.getGCCollectionTime();
+		String message = "{\"topic\": \"gc\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
+				+ ", \"gcTime\": \"" + gcTime + "\"" + "}}";
 		javametricsAgentConnector.sendDataToAgent(message);
 	}
 
