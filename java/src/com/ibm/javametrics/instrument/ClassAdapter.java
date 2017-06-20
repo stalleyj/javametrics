@@ -15,6 +15,8 @@
  ******************************************************************************/
 package com.ibm.javametrics.instrument;
 
+import java.util.HashSet;
+
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -32,10 +34,16 @@ public class ClassAdapter extends ClassVisitor implements Opcodes {
 	 */
 	private static final String HTTP_REQUEST_METHOD_DESC = "(Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;)V";
 	private static final String HTTP_SERVLET_CLASS = "javax/servlet/http/HttpServlet";
-	private static final String HTTP_LIBERTY_JSP_CLASS = "com/ibm/ws/jsp/runtime/HttpJspBase";
 	private static final String HTTP_JSP_INTERFACE = "javax/servlet/jsp/HttpJspPage";
 	private boolean httpInstrumentServlet = false;
 	private boolean httpInstrumentJsp = false;
+
+	static HashSet<String> jspImplementers = new HashSet<String>();
+	static HashSet<String> servletExtenders = new HashSet<String>();
+
+	static {
+		servletExtenders.add(HTTP_SERVLET_CLASS);
+	}
 
 	/**
 	 * @param cv
@@ -93,6 +101,9 @@ public class ClassAdapter extends ClassVisitor implements Opcodes {
 	 * 
 	 * JSP pages: instrument any class that implements the HttpJspPage interface
 	 * 
+	 * NOTE: This assumes the superclasses are visited first which appears to be
+	 * the case
+	 * 
 	 * @param version
 	 * @param access
 	 * @param name
@@ -103,25 +114,45 @@ public class ClassAdapter extends ClassVisitor implements Opcodes {
 	private void visitHttp(int version, int access, String name, String signature, String superName,
 			String[] interfaces) {
 
-		if (HTTP_SERVLET_CLASS.equals(superName)) {
-			httpInstrumentServlet = true;
-		} else if (HTTP_LIBERTY_JSP_CLASS.equals(superName)) {
-			/*
-			 * For Liberty the HttpJspBase class implements HttpJspPage but is
-			 * later subclassed so we need to instrument the subclasses.
-			 */
-			// TODO: work out how to inspect the class hierarchy to find
-			// classes we need to instrument
-			httpInstrumentJsp = true;
-			httpInstrumentServlet = false;
-		}
-
+		/*
+		 * Instrument implementers of javax/servlet/jsp/HttpJspPage
+		 */
 		if (interfaces != null) {
 			for (String iface : interfaces) {
 				if (HTTP_JSP_INTERFACE.equals(iface)) {
+					jspImplementers.add(name);
 					httpInstrumentJsp = true;
-					httpInstrumentServlet = false;
+
+					if (Agent.debug) {
+						System.err.println("Javametrics: " + name + " implements " + HTTP_JSP_INTERFACE);
+					}
 				}
+			}
+		}
+
+		/*
+		 * Instrument classes that extend/override implementers of
+		 * javax/servlet/jsp/HttpJspPage
+		 */
+		if (jspImplementers.contains(superName)) {
+			jspImplementers.add(name);
+			httpInstrumentJsp = true;
+
+			if (Agent.debug) {
+				System.err.println(
+						"Javametrics: " + name + " extends " + superName + " that implements " + HTTP_JSP_INTERFACE);
+			}
+		}
+
+		/*
+		 * Instrument classes that extend javax/servlet/http/HttpServlet but not
+		 * if it is already instrumented as a JSP
+		 */
+		if (!httpInstrumentJsp && servletExtenders.contains(superName)) {
+			servletExtenders.add(name);
+			httpInstrumentServlet = true;
+			if (Agent.debug) {
+				System.err.println("Javametrics: " + name + " extends " + superName);
 			}
 		}
 	}
@@ -144,7 +175,7 @@ public class ClassAdapter extends ClassVisitor implements Opcodes {
 		MethodVisitor httpMv = mv;
 
 		/*
-		 * Instrument _jspService method for JSP. * Instrument doGet, doPost and
+		 * Instrument _jspService method for JSP. Instrument doGet, doPost and
 		 * service methods for servlets.
 		 */
 		if ((httpInstrumentJsp && name.equals("_jspService")) || (httpInstrumentServlet
