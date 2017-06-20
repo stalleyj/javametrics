@@ -101,6 +101,9 @@ public class ClassAdapter extends ClassVisitor implements Opcodes {
 	 * 
 	 * JSP pages: instrument any class that implements the HttpJspPage interface
 	 * 
+	 * NOTE: This assumes the superclasses are visited first which appears to be
+	 * the case
+	 * 
 	 * @param version
 	 * @param access
 	 * @param name
