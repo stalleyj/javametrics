@@ -15,6 +15,8 @@
  ******************************************************************************/
 package com.ibm.javametrics.instrument;
 
+import java.io.PrintStream;
+
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
@@ -30,6 +32,9 @@ public class ServletCallBackAdapter extends BaseAdviceAdapter {
 
 	protected ServletCallBackAdapter(String className, MethodVisitor mv, int access, String name, String desc) {
 		super(className, mv, access, name, desc);
+		if (Agent.debug) {
+			System.err.println("Javametrics: Instrumenting: " + className + "." + name);
+		}
 	}
 
 	@Override
@@ -51,6 +56,15 @@ public class ServletCallBackAdapter extends BaseAdviceAdapter {
 		loadLocal(methodEntertime);
 		loadArgs();
 		invokeStatic(Type.getType(SERVLET_CALLBACK_TYPE), Method.getMethod(SERVLET_CALLBACK_METHOD));
+		
+		/*
+		 * Inject debug information
+		 */
+		if (Agent.debug) {
+			getStatic(Type.getType(System.class), "err", Type.getType(PrintStream.class));
+			push("Javametrics: Return from instrumented method: " + className + "." + methodName);
+			invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println(java.lang.String)"));
+		}
 	}
 
 }

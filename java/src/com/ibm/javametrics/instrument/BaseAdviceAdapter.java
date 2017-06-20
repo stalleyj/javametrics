@@ -53,7 +53,7 @@ public class BaseAdviceAdapter extends AdviceAdapter {
 		 */
 		if (Agent.debug) {
 			getStatic(Type.getType(System.class), "err", Type.getType(PrintStream.class));
-			push(">> Calling method: " + className + "." + methodName);
+			push("Javametrics: Calling instrumented method: " + className + "." + methodName);
 			invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println(java.lang.String)"));
 		}
 	}

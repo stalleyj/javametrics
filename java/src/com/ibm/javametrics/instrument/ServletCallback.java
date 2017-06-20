@@ -98,7 +98,7 @@ public class ServletCallback {
 			data.setDuration(System.currentTimeMillis() - requestTime);
 
 			if (Agent.debug) {
-				System.err.println("{\"http\" : " + data.toJsonString() + "}");
+				System.err.println("Javametrics: Sending {\"http\" : " + data.toJsonString() + "}");
 			}
 
 			/*
