@@ -103,19 +103,18 @@ public class ClassAdapter extends ClassVisitor implements Opcodes {
 	private void visitHttp(int version, int access, String name, String signature, String superName,
 			String[] interfaces) {
 
-		if (superName != null)
-			if (HTTP_SERVLET_CLASS.equals(superName)) {
-				httpInstrumentServlet = true;
-			} else if (HTTP_LIBERTY_JSP_CLASS.equals(superName)) {
-				/*
-				 * For Liberty the HttpJspBase class implements HttpJspPage but
-				 * is later subclassed so we need to instrument the subclasses.
-				 */
-				// TODO: work out how to inspect the class hierarchy to find
-				// classes we need to instrument
-				httpInstrumentJsp = true;
-				httpInstrumentServlet = false;
-			}
+		if (HTTP_SERVLET_CLASS.equals(superName)) {
+			httpInstrumentServlet = true;
+		} else if (HTTP_LIBERTY_JSP_CLASS.equals(superName)) {
+			/*
+			 * For Liberty the HttpJspBase class implements HttpJspPage but is
+			 * later subclassed so we need to instrument the subclasses.
+			 */
+			// TODO: work out how to inspect the class hierarchy to find
+			// classes we need to instrument
+			httpInstrumentJsp = true;
+			httpInstrumentServlet = false;
+		}
 
 		if (interfaces != null) {
 			for (String iface : interfaces) {
