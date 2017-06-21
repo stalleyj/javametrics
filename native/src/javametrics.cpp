@@ -1,12 +1,19 @@
-/**
- * IBM Confidential
- * OCO Source Materials
- * IBM Monitoring and Diagnostic Tools - Health Center
- * (C) Copyright IBM Corp. 2007, 2016 All Rights Reserved.
- * The source code for this program is not published or otherwise
- * divested of its trade secrets, irrespective of what has
- * been deposited with the U.S. Copyright Office.
- */
+/*******************************************************************************
+ * Copyright 2017 IBM Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
+ 
 #if defined(_ZOS)
 #define _UNIX03_SOURCE
 #endif
@@ -66,14 +73,13 @@ jvmtiEnv *pti = NULL;
 
 typedef struct __jdata jdata_t;
 
-/* ensure common reporting of JNI version required */
 #define JNI_VERSION JNI_VERSION_1_4
 
 jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach);
 
 static bool agentStarted = false;
 
-IBMRAS_DEFINE_LOGGER("java");
+IBMRAS_DEFINE_LOGGER("javametrics");
 
 
 ibmras::monitoring::agent::Agent* agent;
@@ -104,8 +110,7 @@ Agent_OnUnload(JavaVM *vm) {
 /******************************/
 JNIEXPORT jint JNICALL
 Agent_OnAttach(JavaVM *vm, char *options, void *reserved) {
-
-	jint rc = 0;
+	jint rc;
 	IBMRAS_DEBUG(debug, "> Agent_OnAttach");if (!agentStarted) {
 		rc = initialiseAgent(vm, options, reserved, 1);
 		initialiseProperties(agentOptions);
@@ -123,35 +128,27 @@ Agent_OnAttach(JavaVM *vm, char *options, void *reserved) {
 /******************************/
 JNIEXPORT jint JNICALL
 Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
-	std::cerr << "in agent onload";
+	jint rc;
 	IBMRAS_DEBUG(debug, "OnLoad");
-	jint rc = 0;
 	if (!agentStarted) {
 		rc = initialiseAgent(vm, options, reserved, 0);
 		agentStarted=true;
 	}
 
 	IBMRAS_DEBUG_1(debug, "< Agent_OnLoad. rc=%d",
-			rc); return rc;
+			rc); 
+	return rc;
 }
 
 /****************************/
 jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
-	jvmtiCapabilities cap;
 	jvmtiEventCallbacks cb;
 
 	jint rc, i, j;
 
-	jint xcnt;
-	jvmtiExtensionFunctionInfo * exfn;
-	jvmtiExtensionEventInfo * exev;
-
-	jvmtiExtensionFunctionInfo * fi;
-	jvmtiExtensionEventInfo * ei;
-	jvmtiParamInfo * pi;
-
 	theVM = vm;
 	tDPP.theVM = vm;
+
 	if (options == NULL) {
 		agentOptions = "";
 	} else {
@@ -159,66 +156,26 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 	}
 
 	vm->GetEnv((void **) &pti, JVMTI_VERSION_1);
+	tDPP.pti = pti;
 
 	ibmras::common::memory::setDefaultMemoryManager(
 			new ibmras::vm::java::JVMTIMemoryManager(pti));
-
-	rc = pti->GetExtensionFunctions(&xcnt, &exfn);
-
-	if (JVMTI_ERROR_NONE != rc) {
-		IBMRAS_DEBUG_1(debug, "GetExtensionFunctions: rc = %d", rc);
-	}
-
-	/* Cleanup after GetExtensionFunctions while extracting information */
-	tDPP.pti = pti;
-
+	
 #if defined(_ZOS)
 #pragma convert("ISO8859-1")
 #endif
-	fi = exfn;
-	pti->Deallocate((unsigned char *) exfn);
-
-	/*--------------------------------------
-	 Manage Extension Events
-	 -------------------------------------*/
-
-	rc = pti->GetExtensionEvents(&xcnt, &exev);
-
-	/* Cleanup after GetExtensionEvents while extracting information */
-
-	ei = exev;
-
-	for (i = 0; i < xcnt; i++) {
-
-		/* Cleanup */
-
-		pi = ei->params;
-
-		for (j = 0; j < ei->param_count; j++) {
-			pti->Deallocate((unsigned char*) pi->name);
-
-			pi++;
-		}
-		pti->Deallocate((unsigned char*) ei->id);
-		pti->Deallocate((unsigned char*) ei->short_description);
-		pti->Deallocate((unsigned char *) ei->params);
-
-		ei++;
-	}
-	pti->Deallocate((unsigned char *) exev);
 
 	memset(&cb, 0, sizeof(cb));
 
 	cb.VMInit = cbVMInit;
 	cb.VMDeath = cbVMDeath;
 
-	pti->SetEventCallbacks(&cb, sizeof(cb));
+	rc = pti->SetEventCallbacks(&cb, sizeof(cb));
 	pti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_INIT, NULL);
 	pti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_DEATH, NULL);
 
 	addPlugins();
 
-	IBMRAS_DEBUG_1(debug, "< initialiseAgent rc=%d", rc);
 	return rc;
 }
 
@@ -252,8 +209,6 @@ std::string setAgentLibPathZOS() {
 	return agent->getProperty("java.home") + "/lib/s390";
 #endif
 }
-
-
 
 static std::string fileJoin(const std::string& path,
 		const std::string& filename) {
@@ -353,7 +308,7 @@ void addAPIPlugin() {
 
 void addPlugins() {
 	agent = ibmras::monitoring::agent::Agent::getInstance();
-// AIX and z/OS can't load the MQTT or API plugins here, as it needs the Java system
+// AIX and z/OS can't load the API plugins here, as it needs the Java system
 // properties from an initialised VM, so needs to wait until cbVMInit has been called.
 #if defined(_AIX) || defined(_ZOS)
 #else
@@ -366,8 +321,6 @@ void addPlugins() {
 
 	IBMRAS_DEBUG(debug, "Adding plugins");
 
-// 	agent->addPlugin(
-// 			ibmras::monitoring::plugins::j9::api::AppPlugin::getInstance(tDPP));
 }
 
 void initialiseProperties(const std::string &options) {
@@ -458,26 +411,6 @@ if (!*env) {
 
 		memset(&threadArgs, 0, sizeof(threadArgs));
 		threadArgs.version = JNI_VERSION_1_4;
-
-#if defined(_ZOS)
-		/**
-		 * To IFA enable a thread we have to call AttachCurrentThread with the JNI version OR'd
-		 * with 0x79000000. This is only necessary on z/OS and is only supported on newer
-		 * JVMs.
-		 * Older JVMs will return an error and set the env to null as they will consider
-		 * this an unsupported JNI_VERSION so we use GetEnv to determine if IFA is supported.
-		 * Newer JVMs will return JNI_OK immediately if called with a version set to
-		 * 0x79000000.
-		 */
-		JNIEnv* ifaEnv = NULL;
-		int ifaEnabled = jvm->GetEnv((void **) &ifaEnv, 0x79000000);
-		if( JNI_OK == ifaEnabled ) {
-			IBMRAS_DEBUG_1(debug, "Thread %s IFA enabled.", name.c_str());
-			threadArgs.version |= 0x79000000;
-		} else {
-			IBMRAS_DEBUG_1(debug, "Thread %s IFA enablement failed", name.c_str());
-		}
-#endif
 
 		threadArgs.name = ibmras::common::util::createAsciiString(name.c_str());
 		threadArgs.group = NULL;
