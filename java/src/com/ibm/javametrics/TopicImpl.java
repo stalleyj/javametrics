@@ -15,71 +15,88 @@
  ******************************************************************************/
 package com.ibm.javametrics;
 
-public class UserTopic implements Topic
-{
+public class TopicImpl implements Topic {
 
 	private String topicName;
 	private boolean enabled = true;
-	
-	protected UserTopic(String topicName) {
+
+	protected TopicImpl(String topicName) {
 		this.topicName = topicName;
 	}
 
 	@Override
-	public void send(String message)
-	{
-		if(enabled) {
-			String json = "{\"topic\": \"" + topicName + "\", \"payload\": {\"message\":\"" + message + "\"}}";
-			Javametrics.sendData(json);
+	public void send(String message) {
+		if (enabled) {
+			StringBuilder json = new StringBuilder();
+			json.append("{\"topic\": \"");
+			json.append(topicName);
+			json.append("\", \"payload\": {\"message\":\"");
+			json.append(message);
+			json.append("\"}}");
+			Javametrics.sendData(json.toString());
 		}
 	}
 
 	@Override
-	public void send(long startTime, long endTime, String message)
-	{
-		if(enabled) {
+	public void send(long startTime, long endTime, String message) {
+		if (enabled) {
 			long duration = endTime - startTime;
-			String json = "{\"topic\": \"" + topicName + "\", \"payload\": " + "{\"time\":\"" + startTime + "\""
-					+ ", \"duration\": \"" + duration + "\"" + ", \"message\": \"" + message + "\"}}";
-			Javametrics.sendData(json);
+			StringBuilder json = new StringBuilder();
+			json.append("{\"topic\": \"");
+			json.append(topicName);
+			json.append("\", \"payload\": {\"time\":\"");
+			json.append(startTime);
+			json.append("\", \"duration\": \"");
+			json.append(duration);
+			json.append("\", \"message\": \"");
+			json.append(message);
+			json.append("\"}}");
+			Javametrics.sendData(json.toString());
 		}
 	}
 
 	@Override
-	public void send(long startTime, long endTime)
-	{
-		if(enabled) {
+	public void send(long startTime, long endTime) {
+		if (enabled) {
 			long duration = endTime - startTime;
-			String json = "{\"topic\": \"" + topicName + "\", \"payload\": " + "{\"time\":\"" + startTime + "\""
-					+ ", \"duration\": \"" + duration + "\"}}";
-			Javametrics.sendData(json);
+			StringBuilder json = new StringBuilder();
+			json.append("{\"topic\": \"");
+			json.append(topicName);
+			json.append("\", \"payload\": {\"time\":\"");
+			json.append(startTime);
+			json.append("\", \"duration\": \"");
+			json.append(duration);
+			json.append("\"}}");
+			Javametrics.sendData(json.toString());
 		}
 	}
-	
+
 	@Override
 	public void sendJSON(String payload) {
-		if(enabled) {
-			String json = "{\"topic\": \"" + topicName + "\", \"payload\":" + payload + "}";
-			Javametrics.sendData(json);
+		if (enabled) {
+			StringBuilder json = new StringBuilder();
+			json.append("{\"topic\": \"");
+			json.append(topicName);
+			json.append( "\", \"payload\":");
+			json.append(payload);
+			json.append("}");
+			Javametrics.sendData(json.toString());
 		}
 	}
 
 	@Override
-	public void disable()
-	{
+	public void disable() {
 		enabled = false;
 	}
 
 	@Override
-	public void enable()
-	{
+	public void enable() {
 		enabled = true;
 	}
 
 	@Override
-	public boolean isEnabled()
-	{
+	public boolean isEnabled() {
 		return enabled;
 	}
-	
+
 }
