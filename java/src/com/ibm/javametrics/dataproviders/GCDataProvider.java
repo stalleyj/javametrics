@@ -28,7 +28,6 @@ public class GCDataProvider {
 	
 	private static long previousCollectionTime = 0;
 	private static long previousRequestTimeStamp = 0;
-	private static long totalGCs = 0;
 
 	/**
 	 * Returns the time spent in GC as a proportion of the time elapsed since this method was last called.
@@ -38,14 +37,10 @@ public class GCDataProvider {
 		long now = System.currentTimeMillis();
 		List<GarbageCollectorMXBean> sunBeans = ManagementFactory.getGarbageCollectorMXBeans();
 		long totalCollectionTime = 0;
-		long gcs = 0;
-		
 		for (Iterator<GarbageCollectorMXBean> iterator = sunBeans.iterator(); iterator.hasNext();) {
 			GarbageCollectorMXBean garbageCollectorMXBean = iterator.next();
 			totalCollectionTime += garbageCollectorMXBean.getCollectionTime();
-			gcs += garbageCollectorMXBean.getCollectionCount();
 		}
-		totalGCs = gcs;
 		if(previousRequestTimeStamp == 0) {
 			previousRequestTimeStamp = now;
 			previousCollectionTime = totalCollectionTime;
