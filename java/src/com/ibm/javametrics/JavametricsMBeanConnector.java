@@ -47,13 +47,15 @@ public class JavametricsMBeanConnector {
 	private void emitGCData() {
 		long timeStamp = System.currentTimeMillis();
 		double gcTime = GCDataProvider.getGCCollectionTime();
-		StringBuilder message = new StringBuilder();
-		message.append("{\"topic\": \"gc\", \"payload\": {\"time\":\"");
-		message.append(timeStamp);
-		message.append("\", \"gcTime\": \"");
-		message.append(gcTime);
-		message.append("\"}}");
-		javametricsAgentConnector.sendDataToAgent(message.toString());
+		if (gcTime >= 0) { // Don't send -1 'no data' values
+			StringBuilder message = new StringBuilder();
+			message.append("{\"topic\": \"gc\", \"payload\": {\"time\":\"");
+			message.append(timeStamp);
+			message.append("\", \"gcTime\": \"");
+			message.append(gcTime);
+			message.append("\"}}");
+			javametricsAgentConnector.sendDataToAgent(message.toString());
+		}
 	}
 
 	private void emitCPUUsage() {

@@ -31,12 +31,16 @@ public class GCDataProvider {
 
 	/**
 	 * Returns the time spent in GC as a proportion of the time elapsed since this method was last called.
+	 * If no data is available -1 is returned.
 	 * @return
 	 */
 	public static double getGCCollectionTime() {
 		long now = System.currentTimeMillis();
 		List<GarbageCollectorMXBean> sunBeans = ManagementFactory.getGarbageCollectorMXBeans();
 		long totalCollectionTime = 0;
+		if(sunBeans.size() == 0) {
+			return -1;
+		}
 		for (Iterator<GarbageCollectorMXBean> iterator = sunBeans.iterator(); iterator.hasNext();) {
 			GarbageCollectorMXBean garbageCollectorMXBean = iterator.next();
 			totalCollectionTime += garbageCollectorMXBean.getCollectionTime();
@@ -44,7 +48,7 @@ public class GCDataProvider {
 		if(previousRequestTimeStamp == 0) {
 			previousRequestTimeStamp = now;
 			previousCollectionTime = totalCollectionTime;
-			return 0;
+			return -1;
 		} else {
 			long collectionTime = totalCollectionTime - previousCollectionTime;
 			long elapsedTime = now - previousRequestTimeStamp;
