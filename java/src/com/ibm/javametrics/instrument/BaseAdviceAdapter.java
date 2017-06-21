@@ -28,6 +28,8 @@ import org.objectweb.asm.commons.Method;
  */
 public class BaseAdviceAdapter extends AdviceAdapter {
 
+	private static final String CURRENT_TIME_MILLIS_METHODNAME = "long currentTimeMillis()";
+
 	protected String className;
 	protected String methodName;
 	protected int methodEntertime;
@@ -43,15 +45,15 @@ public class BaseAdviceAdapter extends AdviceAdapter {
 	 */
 	protected void injectMethodTimer() {
 		methodEntertime = newLocal(Type.LONG_TYPE);
-		invokeStatic(Type.getType(System.class), Method.getMethod("long currentTimeMillis()"));
+		invokeStatic(Type.getType(System.class), Method.getMethod(CURRENT_TIME_MILLIS_METHODNAME));
 		storeLocal(methodEntertime);
-		
+
 		/*
 		 * Inject debug information
 		 */
 		if (Agent.debug) {
 			getStatic(Type.getType(System.class), "err", Type.getType(PrintStream.class));
-			push(">> Calling method: " + className + "." + methodName);
+			push("Javametrics: Calling instrumented method: " + className + "." + methodName);
 			invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println(java.lang.String)"));
 		}
 	}

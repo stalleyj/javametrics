@@ -43,7 +43,7 @@
 
         <div class="row">
             <div class="col-md-4" id="cpuDiv1"></div>
-            <div class="col-md-4" id="memDiv1"></div>
+            <div class="col-md-4" id="gcDiv1"></div>
             <div class="col-md-4" id="envDiv"></div>        
         </div>
         <div class="row">
@@ -97,7 +97,7 @@
 <script type="text/javascript" src="js/httpThroughPutChart.js"></script>
 <script type="text/javascript" src="js/httpRequestsChart.js"></script>
 <script type="text/javascript" src="js/httpTop5.js"></script>
-<script type="text/javascript" src="js/memChart.js"></script>
+<script type="text/javascript" src="js/gcTimeChart.js"></script>
 <script type="text/javascript" src="js/memPoolsChart.js"></script>
 <script>
     let hostname = location.host;
@@ -117,8 +117,8 @@
             case 'cpu':
                 updateCPUData(payload);
                 break;
-            case 'memory':
-                updateMemData(payload);
+            case 'gc':
+                updateGCData(payload);
                 break;
             case 'env':
                 populateEnvTable(payload);
@@ -153,7 +153,7 @@
         resizeHttpChart();
         resizeHttpThroughputChart();
         resizeHttpTop5Chart();
-        resizeMemChart();
+        resizeGCChart();
         resizeMemPoolsChart();
         resizeEnvTable();
     }

@@ -13,32 +13,33 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package com.ibm.javametrics.instrument;
-
-import org.objectweb.asm.MethodVisitor;
+package com.ibm.javametrics;
 
 /**
- * MethodVisitor to inject Http JSP instrumentation
- *
+ * Exception thrown by Javametrics
  */
-public class HttpJspPageAdapter extends ServletCallBackAdapter {
+public class JavametricsException extends RuntimeException {
 
-	protected HttpJspPageAdapter(String className, MethodVisitor mv, int access, String name, String desc) {
-		super(className, mv, access, name, desc);
+	private static final long serialVersionUID = -8487122983395576783L;
+
+	public JavametricsException() {
 	}
 
-	@Override
-	protected void onMethodEnter() {
-		if (methodName.equals("_jspService")) {
-			injectMethodTimer();
-		}
+	public JavametricsException(String message) {
+		super(message);
 	}
 
-	@Override
-	protected void onMethodExit(int opcode) {
-		if (methodName.equals("_jspService")) {
-			injectServletCallback();
-		}
+	public JavametricsException(Throwable cause) {
+		super(cause);
+	}
+
+	public JavametricsException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public JavametricsException(String message, Throwable cause, boolean enableSuppression,
+			boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 }

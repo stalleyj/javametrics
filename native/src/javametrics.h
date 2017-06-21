@@ -19,6 +19,15 @@
 
 #include "jvmti.h"
 
+namespace ibmras {
+namespace monitoring {
+
+int setEnv(JNIEnv** env, std::string name, JavaVM* jvm, bool asDaemon);
+
+} /* namespace monitoring */
+} /* namespace ibmras */
+
+
 struct jvmFunctions {
 	jvmtiEnv *pti;
 	JavaVM *theVM;

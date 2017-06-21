@@ -20,6 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.ibm.javametrics.dataproviders.CPUDataProvider;
+import com.ibm.javametrics.dataproviders.GCDataProvider;
 import com.ibm.javametrics.dataproviders.MemoryPoolDataProvider;
 
 /**
@@ -38,19 +39,23 @@ public class JavametricsMBeanConnector {
 	public JavametricsMBeanConnector(JavametricsAgentConnector agentConnector) {
 		this.javametricsAgentConnector = agentConnector;
 		exec = Executors.newSingleThreadScheduledExecutor();
-		exec.scheduleAtFixedRate(this::emitMemoryUsage, 2, 2, TimeUnit.SECONDS);
+		exec.scheduleAtFixedRate(this::emitGCData, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitCPUUsage, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitMemoryPoolUsage, 2, 2, TimeUnit.SECONDS);
 	}
 
-	private void emitMemoryUsage() {
+	private void emitGCData() {
 		long timeStamp = System.currentTimeMillis();
-		long memTotal = Runtime.getRuntime().totalMemory();
-		long memFree = Runtime.getRuntime().freeMemory();
-		long memUsed = memTotal - memFree;
-		String message = "{\"topic\": \"memory\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
-				+ ", \"physical\": \"" + memTotal + "\"" + ", \"physical_used\": \"" + memUsed + "\"" + "}}";
-		javametricsAgentConnector.sendDataToAgent(message);
+		double gcTime = GCDataProvider.getGCCollectionTime();
+		if (gcTime >= 0) { // Don't send -1 'no data' values
+			StringBuilder message = new StringBuilder();
+			message.append("{\"topic\": \"gc\", \"payload\": {\"time\":\"");
+			message.append(timeStamp);
+			message.append("\", \"gcTime\": \"");
+			message.append(gcTime);
+			message.append("\"}}");
+			javametricsAgentConnector.sendDataToAgent(message.toString());
+		}
 	}
 
 	private void emitCPUUsage() {
@@ -58,9 +63,15 @@ public class JavametricsMBeanConnector {
 		double process = CPUDataProvider.getProcessCpuLoad();
 		double system = CPUDataProvider.getSystemCpuLoad();
 		if (system >= 0 && process >= 0) {
-			String message = "{\"topic\": \"cpu\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
-					+ ", \"system\": \"" + system + "\"" + ", \"process\": \"" + process + "\"" + "}}";
-			javametricsAgentConnector.sendDataToAgent(message);
+			StringBuilder message = new StringBuilder();
+			message.append("{\"topic\": \"cpu\", \"payload\": {\"time\":\"");
+			message.append(timeStamp);
+			message.append( "\", \"system\": \"");
+			message.append(system);
+			message.append("\", \"process\": \"");
+			message.append(process);
+			message.append("\"}}");
+			javametricsAgentConnector.sendDataToAgent(message.toString());
 		}
 	}
 
@@ -70,10 +81,17 @@ public class JavametricsMBeanConnector {
 		long usedNative = MemoryPoolDataProvider.getNativeMemory();
 		long usedHeap = MemoryPoolDataProvider.getHeapMemory();
 		if (usedHeapAfterGC >= 0) { // check that some data is available
-			String message = "{\"topic\": \"memoryPools\", \"payload\": " + "{\"time\":\"" + timeStamp + "\""
-					+ ", \"usedHeapAfterGC\": \"" + usedHeapAfterGC + "\"" + ", \"usedHeap\": \"" + usedHeap + "\""
-					+ ", \"usedNative\": \"" + usedNative + "\"" + "}}";
-			javametricsAgentConnector.sendDataToAgent(message);
+			StringBuilder message = new StringBuilder();
+			message.append("{\"topic\": \"memoryPools\", \"payload\": {\"time\":\"");
+			message.append( timeStamp);
+			message.append("\", \"usedHeapAfterGC\": \"");
+			message.append(usedHeapAfterGC);
+			message.append("\", \"usedHeap\": \"");
+			message.append(usedHeap);
+			message.append("\", \"usedNative\": \"");
+			message.append(usedNative);
+			message.append("\"}}");
+			javametricsAgentConnector.sendDataToAgent(message.toString());
 		}
 	}
 }
