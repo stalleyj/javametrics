@@ -19,7 +19,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 
 /**
- * Uses MBeans to get CPU statistics
+ * Uses MXBeans to get CPU statistics
  *
  */
 public class CPUDataProvider {
@@ -39,22 +39,19 @@ public class CPUDataProvider {
 	}
 
 	private static double getCpuLoad(boolean system) {
-		String cpuLoadMethod = system ? "getSystemCpuLoad": "getProcessCpuLoad";
+		String cpuLoadMethod = system ? "getSystemCpuLoad" : "getProcessCpuLoad";
 		Class<?> noparams[] = {};
 		double result = -1;
 
 		if (!(System.getProperty("java.vm.vendor").contains("IBM"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			Class<?> sunBeanClass;
 			try {
-				sunBeanClass = Class
-						.forName("com.sun.management.OperatingSystemMXBean"); //$NON-NLS-1$
+				sunBeanClass = Class.forName("com.sun.management.OperatingSystemMXBean"); //$NON-NLS-1$
 
 				Object sunBean = ManagementFactory.getOperatingSystemMXBean();
 
-				Method sunMethod = sunBeanClass.getDeclaredMethod(
-						cpuLoadMethod, noparams); //$NON-NLS-1$
-				Double sunResult = (Double) sunMethod.invoke(sunBean,
-						(Object[]) null);
+				Method sunMethod = sunBeanClass.getDeclaredMethod(cpuLoadMethod, noparams); // $NON-NLS-1$
+				Double sunResult = (Double) sunMethod.invoke(sunBean, (Object[]) null);
 				if (sunResult != null) {
 					result = sunResult.doubleValue();
 				}
@@ -64,16 +61,13 @@ public class CPUDataProvider {
 
 		} else if (System.getProperty("java.vm.vendor").contains("IBM")) { //$NON-NLS-1$ //$NON-NLS-2$
 			try {
-				Class<?> ibmBeanClass = Class
-						.forName("com.ibm.lang.management.OperatingSystemMXBean"); //$NON-NLS-1$
+				Class<?> ibmBeanClass = Class.forName("com.ibm.lang.management.OperatingSystemMXBean"); //$NON-NLS-1$
 
 				Object ibmBean = ManagementFactory.getOperatingSystemMXBean();
 
-				Method ibmMethod = ibmBeanClass.getDeclaredMethod(
-						cpuLoadMethod, noparams); //$NON-NLS-1$
+				Method ibmMethod = ibmBeanClass.getDeclaredMethod(cpuLoadMethod, noparams); // $NON-NLS-1$
 
-				Double ibmResult = (Double) ibmMethod.invoke(ibmBean,
-						(Object[]) null);
+				Double ibmResult = (Double) ibmMethod.invoke(ibmBean, (Object[]) null);
 				if (ibmResult != null) {
 					result = ibmResult.doubleValue();
 				}

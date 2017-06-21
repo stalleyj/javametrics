@@ -28,7 +28,6 @@
 #include "ibmras/common/util/strUtils.h"
 #include "ibmras/common/port/Process.h"
 #include "ibmras/vm/java/JVMTIMemoryManager.h"
-#include "ibmras/monitoring/plugins/j9/Util.h"
 
 struct __jdata;
 
@@ -417,8 +416,7 @@ void sendMsg(const char *sourceId, uint32 size, void *data) {
 
 	jint rc = theVM->GetEnv((void **) &ourEnv, JNI_VERSION);
 	if (rc == JNI_EDETACHED) {
- 		rc = ibmras::monitoring::plugins::j9::setEnv(&ourEnv,
- 				"Application metrics for Java (javametrics)", theVM, false);
+ 		rc = ibmras::monitoring::setEnv(&ourEnv, "Application metrics for Java (javametrics)", theVM, false);
 		attachFlag = true;
 	}
 	if (rc < 0 || NULL == ourEnv) {
@@ -443,6 +441,69 @@ void sendMsg(const char *sourceId, uint32 size, void *data) {
 		theVM->DetachCurrentThread();
 	}
 }
+
+namespace ibmras {
+namespace monitoring {
+
+/***
+ * Returns 0 [OK] or -1 [ERR]
+ * @param env The JNI environment to be set up
+ * @param name The name of the plugin calling this method.
+ * @param jvm The virtual machine that we'll attach to.
+ * @param asDaemon Whether this should be a daemon thread or not.
+ */
+int setEnv(JNIEnv** env, std::string name, JavaVM* jvm, bool asDaemon) {
+if (!*env) {
+		JavaVMAttachArgs threadArgs;
+
+		memset(&threadArgs, 0, sizeof(threadArgs));
+		threadArgs.version = JNI_VERSION_1_4;
+
+#if defined(_ZOS)
+		/**
+		 * To IFA enable a thread we have to call AttachCurrentThread with the JNI version OR'd
+		 * with 0x79000000. This is only necessary on z/OS and is only supported on newer
+		 * JVMs.
+		 * Older JVMs will return an error and set the env to null as they will consider
+		 * this an unsupported JNI_VERSION so we use GetEnv to determine if IFA is supported.
+		 * Newer JVMs will return JNI_OK immediately if called with a version set to
+		 * 0x79000000.
+		 */
+		JNIEnv* ifaEnv = NULL;
+		int ifaEnabled = jvm->GetEnv((void **) &ifaEnv, 0x79000000);
+		if( JNI_OK == ifaEnabled ) {
+			IBMRAS_DEBUG_1(debug, "Thread %s IFA enabled.", name.c_str());
+			threadArgs.version |= 0x79000000;
+		} else {
+			IBMRAS_DEBUG_1(debug, "Thread %s IFA enablement failed", name.c_str());
+		}
+#endif
+
+		threadArgs.name = ibmras::common::util::createAsciiString(name.c_str());
+		threadArgs.group = NULL;
+		IBMRAS_DEBUG_1(debug, "Attaching thread %s", name.c_str());
+		jint errcode = 0;
+		if( asDaemon ) {
+			jvm->AttachCurrentThreadAsDaemon((void **) env, &threadArgs);
+		} else {
+			jvm->AttachCurrentThread((void **) env, &threadArgs);
+		}
+		ibmras::common::memory::deallocate((unsigned char**)&threadArgs.name);
+		if (errcode != JNI_OK) {
+			if( asDaemon ) {
+				IBMRAS_DEBUG_2(debug, "AttachCurrentThreadAsDaemon failed %d for %s", errcode, name.c_str());
+			} else {
+				IBMRAS_DEBUG_2(debug, "AttachCurrentThread failed %d for %s", errcode, name.c_str());
+			}
+			return -1;
+		}
+		IBMRAS_DEBUG_1(debug, "Attached thread %s", name.c_str());
+	}
+	return 0;
+}
+
+} /* namespace monitoring */
+} /* namespace ibmras */
 
 extern "C" {
 JNIEXPORT void JNICALL

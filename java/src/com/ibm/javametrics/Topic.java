@@ -62,6 +62,10 @@ public interface Topic
 	 */
 	public void enable();
 
+	/**
+	 * Returns true if this topic is enabled
+	 * @return
+	 */
 	public boolean isEnabled();
 
 }

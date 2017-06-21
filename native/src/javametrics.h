@@ -36,4 +36,12 @@ struct jvmFunctions {
 	JavaVM *theVM;
 };
 
+namespace ibmras {
+namespace monitoring {
+
+int setEnv(JNIEnv** env, std::string name, JavaVM* jvm, bool asDaemon);
+
+} /* namespace monitoring */
+} /* namespace ibmras */
+
 #endif /* ibmras_vm_java_healthcenter_h */

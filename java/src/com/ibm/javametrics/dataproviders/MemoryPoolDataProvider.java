@@ -22,21 +22,23 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Uses MBeans to provide heap and other memory statistics
+ * Uses MXBeans to provide heap and other memory statistics
  *
  */
-public class MemoryPoolDataProvider
-{
+public class MemoryPoolDataProvider {
 
 	/**
-	 * Get the current heap size in bytes
+	 * Get the current heap size in bytes Returns -1 if no data is available
 	 */
 	public static long getHeapMemory() {
 		long total = 0;
 		List<MemoryPoolMXBean> memoryPoolBeans = ManagementFactory.getMemoryPoolMXBeans();
+		if (memoryPoolBeans.isEmpty()) {
+			return -1;
+		}
 		for (Iterator<MemoryPoolMXBean> iterator = memoryPoolBeans.iterator(); iterator.hasNext();) {
 			MemoryPoolMXBean memoryPoolMXBean = iterator.next();
-			if(memoryPoolMXBean.getType().equals(MemoryType.HEAP)) {
+			if (memoryPoolMXBean.getType().equals(MemoryType.HEAP)) {
 				total += memoryPoolMXBean.getUsage().getUsed();
 			}
 		}
@@ -44,14 +46,18 @@ public class MemoryPoolDataProvider
 	}
 
 	/**
-	 * Get the most recent heap size immediately after GC in bytes
+	 * Get the most recent heap size immediately after GC in bytes. Returns -1
+	 * if no data is available
 	 */
 	public static long getUsedHeapAfterGC() {
 		long total = 0;
 		List<MemoryPoolMXBean> memoryPoolBeans = ManagementFactory.getMemoryPoolMXBeans();
+		if (memoryPoolBeans.isEmpty()) {
+			return -1;
+		}
 		for (Iterator<MemoryPoolMXBean> iterator = memoryPoolBeans.iterator(); iterator.hasNext();) {
 			MemoryPoolMXBean memoryPoolMXBean = iterator.next();
-			if(memoryPoolMXBean.getType().equals(MemoryType.HEAP)) {
+			if (memoryPoolMXBean.getType().equals(MemoryType.HEAP)) {
 				total += memoryPoolMXBean.getCollectionUsage().getUsed();
 			}
 		}
@@ -59,14 +65,18 @@ public class MemoryPoolDataProvider
 	}
 
 	/**
-	 * Get the size of native memory used by the JVM in bytes
+	 * Get the size of native memory used by the JVM in bytes. Returns -1 if no
+	 * data is available
 	 */
 	public static long getNativeMemory() {
 		long total = 0;
 		List<MemoryPoolMXBean> memoryPoolBeans = ManagementFactory.getMemoryPoolMXBeans();
+		if (memoryPoolBeans.isEmpty()) {
+			return -1;
+		}
 		for (Iterator<MemoryPoolMXBean> iterator = memoryPoolBeans.iterator(); iterator.hasNext();) {
 			MemoryPoolMXBean memoryPoolMXBean = iterator.next();
-			if(memoryPoolMXBean.getType().equals(MemoryType.NON_HEAP)) {
+			if (memoryPoolMXBean.getType().equals(MemoryType.NON_HEAP)) {
 				total += memoryPoolMXBean.getUsage().getUsed();
 			}
 		}
