@@ -1,12 +1,19 @@
-/**
- * IBM Confidential
- * OCO Source Materials
- * IBM Monitoring and Diagnostic Tools - Health Center
- * (C) Copyright IBM Corp. 2007, 2016 All Rights Reserved.
- * The source code for this program is not published or otherwise
- * divested of its trade secrets, irrespective of what has
- * been deposited with the U.S. Copyright Office.
- */
+/*******************************************************************************
+ * Copyright 2017 IBM Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
+ 
 #if defined(_ZOS)
 #define _UNIX03_SOURCE
 #endif
@@ -108,7 +115,7 @@ Agent_OnAttach(JavaVM *vm, char *options, void *reserved) {
 
 	jint rc = 0;
 	IBMRAS_DEBUG(debug, "> Agent_OnAttach");if (!agentStarted) {
-		rc = initialiseAgent(vm, options, reserved, 1);
+		initialiseAgent(vm, options, reserved, 1);
 		initialiseProperties(agentOptions);
 		agent->init();
 		agentStarted=true;
@@ -125,31 +132,33 @@ Agent_OnAttach(JavaVM *vm, char *options, void *reserved) {
 JNIEXPORT jint JNICALL
 Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
 	std::cerr << "in agent onload";
+	jint rc;
 	IBMRAS_DEBUG(debug, "OnLoad");
-	jint rc = 0;
 	if (!agentStarted) {
 		rc = initialiseAgent(vm, options, reserved, 0);
 		agentStarted=true;
 	}
 
 	IBMRAS_DEBUG_1(debug, "< Agent_OnLoad. rc=%d",
-			rc); return rc;
+			rc); 
+	return rc;
 }
 
 /****************************/
 jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
-	jvmtiCapabilities cap;
+// 	jvmtiCapabilities cap;
 	jvmtiEventCallbacks cb;
 
 	jint rc, i, j;
 
-	jint xcnt;
-	jvmtiExtensionFunctionInfo * exfn;
-	jvmtiExtensionEventInfo * exev;
+ 	jint xcnt;
+ 	jvmtiExtensionFunctionInfo * exfn;
+ 	jvmtiExtensionEventInfo * exev;
+// 
+// 	jvmtiExtensionFunctionInfo * fi;
+// 	jvmtiExtensionEventInfo * ei;
+// 	jvmtiParamInfo * pi;
 
-	jvmtiExtensionFunctionInfo * fi;
-	jvmtiExtensionEventInfo * ei;
-	jvmtiParamInfo * pi;
 
 	theVM = vm;
 	tDPP.theVM = vm;
@@ -160,53 +169,24 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 	}
 
 	vm->GetEnv((void **) &pti, JVMTI_VERSION_1);
+	tDPP.pti = pti;
 
 	ibmras::common::memory::setDefaultMemoryManager(
 			new ibmras::vm::java::JVMTIMemoryManager(pti));
 
-	rc = pti->GetExtensionFunctions(&xcnt, &exfn);
 
 	if (JVMTI_ERROR_NONE != rc) {
 		IBMRAS_DEBUG_1(debug, "GetExtensionFunctions: rc = %d", rc);
 	}
 
 	/* Cleanup after GetExtensionFunctions while extracting information */
-	tDPP.pti = pti;
-
+	
 #if defined(_ZOS)
 #pragma convert("ISO8859-1")
 #endif
-	fi = exfn;
-	pti->Deallocate((unsigned char *) exfn);
 
-	/*--------------------------------------
-	 Manage Extension Events
-	 -------------------------------------*/
-
-	rc = pti->GetExtensionEvents(&xcnt, &exev);
-
-	/* Cleanup after GetExtensionEvents while extracting information */
-
-	ei = exev;
-
-	for (i = 0; i < xcnt; i++) {
-
-		/* Cleanup */
-
-		pi = ei->params;
-
-		for (j = 0; j < ei->param_count; j++) {
-			pti->Deallocate((unsigned char*) pi->name);
-
-			pi++;
-		}
-		pti->Deallocate((unsigned char*) ei->id);
-		pti->Deallocate((unsigned char*) ei->short_description);
-		pti->Deallocate((unsigned char *) ei->params);
-
-		ei++;
-	}
-	pti->Deallocate((unsigned char *) exev);
+ 	rc = pti->GetExtensionEvents(&xcnt, &exev);
+ 	pti->Deallocate((unsigned char *) exev);
 
 	memset(&cb, 0, sizeof(cb));
 
