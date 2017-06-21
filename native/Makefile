@@ -10,7 +10,7 @@ JAVA_OUT=${OUTPUT}/javametrics
 OMR_AGENTCORE_AGENT_OBJS=./omr-agentcore/output/agent/*.o
 OMR_AGENTCORE_COMMON_OBJS=./omr-agentcore/output/common/*.o
 OMR_AGENTCORE_CONNECTOR_OBJS=./omr-agentcore/output/connectors/${LIB_PREFIX}apiplugin.lib
-JAVA_OBJS = ${JAVA_OUT}/javametrics.o ${JAVA_OUT}/JVMTIMemoryManager.o ${JAVA_OUT}/Util.o
+JAVA_OBJS = ${JAVA_OUT}/javametrics.o ${JAVA_OUT}/JVMTIMemoryManager.o
 JAVAMETRICS_LIB=${LIB_PREFIX}javametrics.${ARC_EXT}
 JAVAMETRICS_AGENT=${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT}	
 #-------------------------------------------------------------------------------------------
@@ -49,9 +49,6 @@ ${JAVA_OUT}/javametrics.o:
 
 ${JAVA_OUT}/JVMTIMemoryManager.o: 
 	${CC} ${INCS} -I./omr-agentcore/src -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${JAVAMETRICS_SRC}/ibmras/vm/java/JVMTIMemoryManager.cpp
-
-${JAVA_OUT}/Util.o: 
-	${CC} ${INCS} -I./omr-agentcore/src -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${JAVAMETRICS_SRC}/ibmras/monitoring/plugins/j9/Util.cpp
 
 
 ${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT}:  ${JAVA_OBJS}
