@@ -142,22 +142,13 @@ Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
 
 /****************************/
 jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
-// 	jvmtiCapabilities cap;
 	jvmtiEventCallbacks cb;
 
 	jint rc, i, j;
 
-//  	jint xcnt;
-//  	jvmtiExtensionFunctionInfo * exfn;
-//  	jvmtiExtensionEventInfo * exev;
-// 
-// 	jvmtiExtensionFunctionInfo * fi;
-// 	jvmtiExtensionEventInfo * ei;
-// 	jvmtiParamInfo * pi;
-
-
 	theVM = vm;
 	tDPP.theVM = vm;
+
 	if (options == NULL) {
 		agentOptions = "";
 	} else {
@@ -173,9 +164,6 @@ jint initialiseAgent(JavaVM *vm, char *options, void *reserved, int onAttach) {
 #if defined(_ZOS)
 #pragma convert("ISO8859-1")
 #endif
-
-//  	rc = pti->GetExtensionEvents(&xcnt, &exev);
-//  	pti->Deallocate((unsigned char *) exev);
 
 	memset(&cb, 0, sizeof(cb));
 
@@ -221,8 +209,6 @@ std::string setAgentLibPathZOS() {
 	return agent->getProperty("java.home") + "/lib/s390";
 #endif
 }
-
-
 
 static std::string fileJoin(const std::string& path,
 		const std::string& filename) {
@@ -322,7 +308,7 @@ void addAPIPlugin() {
 
 void addPlugins() {
 	agent = ibmras::monitoring::agent::Agent::getInstance();
-// AIX and z/OS can't load the MQTT or API plugins here, as it needs the Java system
+// AIX and z/OS can't load the API plugins here, as it needs the Java system
 // properties from an initialised VM, so needs to wait until cbVMInit has been called.
 #if defined(_AIX) || defined(_ZOS)
 #else
@@ -335,8 +321,6 @@ void addPlugins() {
 
 	IBMRAS_DEBUG(debug, "Adding plugins");
 
-// 	agent->addPlugin(
-// 			ibmras::monitoring::plugins::j9::api::AppPlugin::getInstance(tDPP));
 }
 
 void initialiseProperties(const std::string &options) {
@@ -427,26 +411,6 @@ if (!*env) {
 
 		memset(&threadArgs, 0, sizeof(threadArgs));
 		threadArgs.version = JNI_VERSION_1_4;
-
-#if defined(_ZOS)
-		/**
-		 * To IFA enable a thread we have to call AttachCurrentThread with the JNI version OR'd
-		 * with 0x79000000. This is only necessary on z/OS and is only supported on newer
-		 * JVMs.
-		 * Older JVMs will return an error and set the env to null as they will consider
-		 * this an unsupported JNI_VERSION so we use GetEnv to determine if IFA is supported.
-		 * Newer JVMs will return JNI_OK immediately if called with a version set to
-		 * 0x79000000.
-		 */
-		JNIEnv* ifaEnv = NULL;
-		int ifaEnabled = jvm->GetEnv((void **) &ifaEnv, 0x79000000);
-		if( JNI_OK == ifaEnabled ) {
-			IBMRAS_DEBUG_1(debug, "Thread %s IFA enabled.", name.c_str());
-			threadArgs.version |= 0x79000000;
-		} else {
-			IBMRAS_DEBUG_1(debug, "Thread %s IFA enablement failed", name.c_str());
-		}
-#endif
 
 		threadArgs.name = ibmras::common::util::createAsciiString(name.c_str());
 		threadArgs.group = NULL;
