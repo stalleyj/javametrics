@@ -15,6 +15,10 @@
  ******************************************************************************/
 package com.ibm.javametrics;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 public class JavametricsAgentConnector {
 
 	private static native void regListener(JavametricsAgentConnector jm);
@@ -31,12 +35,12 @@ public class JavametricsAgentConnector {
 	private static final String CONFIGURATION_TOPIC = "configuration/";//$NON-NLS-1$
 	private static final String HISTORY_TOPIC = "/history/";//$NON-NLS-1$
 	
-	private JavametricsListener javametricsListener;
+	private List<JavametricsListener> javametricsListeners = new ArrayList<JavametricsListener>();
 	
 	public JavametricsAgentConnector(JavametricsListener jml) {
 		super();
 
-		this.javametricsListener = jml;
+		this.javametricsListeners.add(jml);
 
 		regListener(this);
 
@@ -53,7 +57,7 @@ public class JavametricsAgentConnector {
 		new JavametricsMBeanConnector(this);
 	}
 
-	public void sendMessage(String name, String command, String... params) {
+	private void sendMessage(String name, String command, String... params) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(command);
 		for (String parameter : params) {
@@ -64,25 +68,22 @@ public class JavametricsAgentConnector {
 	}
 
 	public void receiveData(String type, byte[] data) {
-//		String dataType;
-//		System.out.println("type is " + type);
-		javametricsListener.receive(type, new String(data));
-//		if (type.startsWith(CLIENT_ID)) {
-//			dataType = type.substring(CLIENT_ID.length());
-//		} else {
-//			dataType = type;
-//		}
-//		if (dataType.equals(DATASOURCE_TOPIC)) {
-//			System.out.println("dataType is " + dataType);
-//			String contents;
-//			contents = new String(data);
-//			System.out.println("contents is " + contents);
-//		} else { // TODO: should filter here and aggregate
-//			javametricsListener.emit(new String(data));
-//		}
+		// System.out.println("type is " + type);
+		for (Iterator<JavametricsListener> iterator = javametricsListeners.iterator(); iterator.hasNext();) {
+			JavametricsListener javametricsListener = iterator.next();
+			javametricsListener.receive(type, new String(data));
+		}
+	}
+
+	protected void addListener(JavametricsListener jml) {
+		javametricsListeners.add(jml);
+	}
+
+	protected boolean removeListener(JavametricsListener jml) {
+		return javametricsListeners.remove(jml);
 	}
 	
-	public void sendDataToAgent(String data) {
+	protected void sendDataToAgent(String data) {
 		pushDataToAgent(data);
 	}
 }

@@ -19,8 +19,7 @@ import java.util.HashMap;
 
 /**
  * Javametrics public API class. Used to create Topics which can send data to
- * Javametrics Use Javametrics.getJavametrics() to get the singleton instance of
- * this class
+ * Javametrics. JSON formatted data can also be sent directly using sendJSON.
  */
 public class Javametrics {
 
@@ -32,7 +31,7 @@ public class Javametrics {
 	 * exists then that will be returned to you
 	 * 
 	 * @param topicName
-	 * @return
+	 * @return a {@link Topic} with the given name
 	 */
 	public static Topic getTopic(String topicName) {
 		if (topicName == null || topicName.length() == 0) {
@@ -49,7 +48,6 @@ public class Javametrics {
 
 	protected static void registerJavametricsAgentConnector(JavametricsAgentConnector javametricsAgentConnector) {
 		Javametrics.javametricsAgentConnector = javametricsAgentConnector;
-
 	}
 
 	protected static void sendData(String data) {
@@ -64,7 +62,7 @@ public class Javametrics {
 	 * @param topicName
 	 *            the name of the topic to send data on
 	 * @param payload
-	 *            the JSON formatted String to send
+	 *             A JSON object formatted as a String
 	 */
 	public static void sendJSON(String topicName, String payload) {
 		if (topicName == null || topicName.length() == 0) {
@@ -89,4 +87,27 @@ public class Javametrics {
 		return getTopic(topicName).isEnabled();
 	}
 
+	/**
+	 * Add a JavametricsListener, which will be informed of Javametrics events
+	 * @param jml the JavametricsListener to be added
+	 */
+	public void addListener(JavametricsListener jml) {
+		if (javametricsAgentConnector == null) {
+			throw new JavametricsException("Javametrics has not yet been initialised, cannot add listener");
+		}
+		javametricsAgentConnector.addListener(jml);
+	}
+
+	/**
+	 * Remove a JavametricsListener
+	 * @param jml the JavametricsListener to be removed
+	 * @return true if the listener was registered
+	 */
+	protected boolean removeListener(JavametricsListener jml) {
+		if (javametricsAgentConnector == null) {
+			throw new JavametricsException("Javametrics has not yet been initialised, cannot add listener");
+		}
+		return javametricsAgentConnector.removeListener(jml);
+	}
+	
 }
