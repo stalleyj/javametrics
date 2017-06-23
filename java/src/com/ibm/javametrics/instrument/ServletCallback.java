@@ -15,7 +15,6 @@
  ******************************************************************************/
 package com.ibm.javametrics.instrument;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -34,25 +33,61 @@ public class ServletCallback {
 	private static final String GET_CONTENT_TYPE = "getContentType";
 	private static final String GET_HEADER_NAMES = "getHeaderNames";
 	private static final String GET_HEADER = "getHeader";
+	private static final String GET_ATTRIBUTE = "getAttribute";
+	private static final String SET_ATTRIBUTE = "setAttribute";
+	private static final Object TRACKER_ATTRIBUTE = "com.ibm.javametrics.tracker";
 
 	/**
-	 * Called before method exit for HTTP/JSP requests public static void
+	 * Called on method entry for HTTP/JSP requests public static void
+	 * 
+	 * True method signature: void before(long requestTime, HttpServletRequest
+	 * request, HttpServletResponse response)
+	 * 
+	 * @param request
+	 *            HttpServletRequest
+	 * @param response
+	 *            HttpServletResponse
+	 */
+	public static void before(Object request, Object response) {
+		/*
+		 * Use reflection to access the HttpServletRequest/Response as using the
+		 * true method signature caused ClassLoader issues.
+		 */
+		Class<?> reqClass = request.getClass();
+		try {
+			/*
+			 * Retrieve the tracker from the request and increment nesting level
+			 */
+			HttpRequestTracker tracker;
+			Method getAttribute = reqClass.getMethod(GET_ATTRIBUTE, String.class);
+			tracker = (HttpRequestTracker) (getAttribute.invoke(request, TRACKER_ATTRIBUTE));
+			if (tracker == null) {
+				tracker = new HttpRequestTracker();
+			}
+			tracker.increment();
+			Method setAttribute = reqClass.getMethod(SET_ATTRIBUTE, String.class, Object.class);
+			setAttribute.invoke(request, TRACKER_ATTRIBUTE, tracker);
+		} catch (Exception e) {
+			// Log any exception caused by our injected code
+			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
+		}
+	}
+
+	/**
+	 * Called on method exit for HTTP/JSP requests public static void
 	 * 
 	 * True method signature: void after(long requestTime, HttpServletRequest
 	 * request, HttpServletResponse response)
 	 * 
-	 * @param requestTime
-	 *            timestamp in ms of request
 	 * @param request
 	 *            HttpServletRequest
 	 * @param response
 	 *            HttpServletResponse
 	 */
 	@SuppressWarnings("unchecked")
-	public static void after(long requestTime, Object request, Object response) {
+	public static void after(Object request, Object response) {
 
 		HttpData data = new HttpData();
-		data.setRequestTime(requestTime);
 
 		/*
 		 * Use reflection to access the HttpServletRequest/Response as using the
@@ -61,6 +96,34 @@ public class ServletCallback {
 		Class<?> reqClass = request.getClass();
 		Class<?> respClass = response.getClass();
 		try {
+			/*
+			 * Retrieve the request tracker
+			 */
+			Method getAttribute = reqClass.getMethod(GET_ATTRIBUTE, String.class);
+			Method setAttribute = reqClass.getMethod(SET_ATTRIBUTE, String.class, Object.class);
+			HttpRequestTracker tracker = (HttpRequestTracker) (getAttribute.invoke(request, TRACKER_ATTRIBUTE));
+			if (tracker == null) {
+				/*
+				 * should never happen
+				 */
+				return;
+			}
+
+			/*
+			 * Decrement the nesting level and return if still nested
+			 */
+			if (tracker.decrement()) {
+				setAttribute.invoke(request, TRACKER_ATTRIBUTE, tracker);
+				return;
+			}
+
+			/*
+			 * Clear the tracker
+			 */
+			setAttribute.invoke(request, TRACKER_ATTRIBUTE, null);
+
+			data.setRequestTime(tracker.getRequestTime());
+
 			Method getRequestURL = reqClass.getMethod(GET_REQUEST_URL);
 			data.setUrl(((StringBuffer) getRequestURL.invoke(request)).toString());
 
@@ -95,7 +158,7 @@ public class ServletCallback {
 				}
 			}
 
-			data.setDuration(System.currentTimeMillis() - requestTime);
+			data.setDuration(System.currentTimeMillis() - tracker.getRequestTime());
 
 			if (Agent.debug) {
 				System.err.println("Javametrics: Sending {\"http\" : " + data.toJsonString() + "}");
@@ -106,16 +169,6 @@ public class ServletCallback {
 			 */
 			Javametrics.sendJSON(HTTP_TOPIC, data.toJsonString());
 
-		} catch (NoSuchMethodException e) {
-			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
-		} catch (SecurityException e) {
-			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
-		} catch (IllegalAccessException e) {
-			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
-		} catch (IllegalArgumentException e) {
-			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
-		} catch (InvocationTargetException e) {
-			System.err.println("Javametrics: Servlet callback exception: " + e.toString());
 		} catch (Exception e) {
 			// Log any exception caused by our injected code
 			System.err.println("Javametrics: Servlet callback exception: " + e.toString());

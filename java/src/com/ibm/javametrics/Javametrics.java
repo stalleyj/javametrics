@@ -19,20 +19,28 @@ import java.util.HashMap;
 
 /**
  * Javametrics public API class. Used to create Topics which can send data to
- * Javametrics Use Javametrics.getJavametrics() to get the singleton instance of
- * this class
+ * Javametrics. JSON formatted data can also be sent directly using sendJSON.
  */
 public class Javametrics {
 
+    /*
+     * Connect to the native agent
+     */
+    private static JavametricsAgentConnector javametricsAgentConnector = new JavametricsAgentConnector();
+
+    /*
+     * Start the mbean data providers
+     */
+    static JavametricsMBeanConnector jmbc = new JavametricsMBeanConnector();
+    
 	private static HashMap<String, Topic> topics = new HashMap<String, Topic>();
-	private static JavametricsAgentConnector javametricsAgentConnector;
 
 	/**
 	 * Get a Topic to send data on. If a topic with the given name already
 	 * exists then that will be returned to you
 	 * 
 	 * @param topicName
-	 * @return
+	 * @return a {@link Topic} with the given name
 	 */
 	public static Topic getTopic(String topicName) {
 		if (topicName == null || topicName.length() == 0) {
@@ -47,11 +55,6 @@ public class Javametrics {
 		}
 	}
 
-	protected static void registerJavametricsAgentConnector(JavametricsAgentConnector javametricsAgentConnector) {
-		Javametrics.javametricsAgentConnector = javametricsAgentConnector;
-
-	}
-
 	protected static void sendData(String data) {
 		if (javametricsAgentConnector != null) {
 			javametricsAgentConnector.sendDataToAgent(data);
@@ -64,7 +67,7 @@ public class Javametrics {
 	 * @param topicName
 	 *            the name of the topic to send data on
 	 * @param payload
-	 *            the JSON formatted String to send
+	 *             A JSON object formatted as a String
 	 */
 	public static void sendJSON(String topicName, String payload) {
 		if (topicName == null || topicName.length() == 0) {
@@ -87,6 +90,34 @@ public class Javametrics {
 			throw new JavametricsException("Topic names must not be null or 0 length");
 		}
 		return getTopic(topicName).isEnabled();
+	}
+
+	/**
+	 * Add a JavametricsListener, which will be informed of Javametrics events
+	 * @param jml the JavametricsListener to be added
+	 */
+	public static void addListener(JavametricsListener jml) {
+		if (javametricsAgentConnector == null) {
+			throw new JavametricsException("Javametrics has not yet been initialised, cannot add listener");
+		}
+		javametricsAgentConnector.addListener(jml);
+		
+		/*
+		 * Request history data so new listeners receive the environment data
+		 */
+	    javametricsAgentConnector.send("history");
+	}
+
+	/**
+	 * Remove a JavametricsListener
+	 * @param jml the JavametricsListener to be removed
+	 * @return true if the listener was registered
+	 */
+	public static boolean removeListener(JavametricsListener jml) {
+		if (javametricsAgentConnector == null) {
+			throw new JavametricsException("Javametrics has not yet been initialised, cannot add listener");
+		}
+		return javametricsAgentConnector.removeListener(jml);
 	}
 
 }

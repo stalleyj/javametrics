@@ -28,16 +28,16 @@ import com.ibm.javametrics.dataproviders.MemoryPoolDataProvider;
  */
 public class JavametricsMBeanConnector {
 
-	
-	private ScheduledExecutorService exec;
-	private JavametricsAgentConnector javametricsAgentConnector;
+	private static final String GC_TOPIC = "gc";
+    private static final String CPU_TOPIC = "cpu";
+    private static final String MEMORYPOOLS_TOPIC = "memoryPools";
+    
+    private ScheduledExecutorService exec;
 
 	/**
 	 * Create a JavametricsMBeanConnector
-	 * @param agentConnector JavametricsAgentConnector - required so data can be sent to the agent
 	 */
-	public JavametricsMBeanConnector(JavametricsAgentConnector agentConnector) {
-		this.javametricsAgentConnector = agentConnector;
+	public JavametricsMBeanConnector() {
 		exec = Executors.newSingleThreadScheduledExecutor();
 		exec.scheduleAtFixedRate(this::emitGCData, 2, 2, TimeUnit.SECONDS);
 		exec.scheduleAtFixedRate(this::emitCPUUsage, 2, 2, TimeUnit.SECONDS);
@@ -49,12 +49,12 @@ public class JavametricsMBeanConnector {
 		double gcTime = GCDataProvider.getGCCollectionTime();
 		if (gcTime >= 0) { // Don't send -1 'no data' values
 			StringBuilder message = new StringBuilder();
-			message.append("{\"topic\": \"gc\", \"payload\": {\"time\":\"");
+			message.append("{\"time\":\"");
 			message.append(timeStamp);
 			message.append("\", \"gcTime\": \"");
 			message.append(gcTime);
 			message.append("\"}}");
-			javametricsAgentConnector.sendDataToAgent(message.toString());
+            Javametrics.sendJSON(GC_TOPIC, message.toString());
 		}
 	}
 
@@ -64,14 +64,14 @@ public class JavametricsMBeanConnector {
 		double system = CPUDataProvider.getSystemCpuLoad();
 		if (system >= 0 && process >= 0) {
 			StringBuilder message = new StringBuilder();
-			message.append("{\"topic\": \"cpu\", \"payload\": {\"time\":\"");
+			message.append("{\"time\":\"");
 			message.append(timeStamp);
 			message.append( "\", \"system\": \"");
 			message.append(system);
 			message.append("\", \"process\": \"");
 			message.append(process);
 			message.append("\"}}");
-			javametricsAgentConnector.sendDataToAgent(message.toString());
+            Javametrics.sendJSON(CPU_TOPIC, message.toString());
 		}
 	}
 
@@ -82,7 +82,7 @@ public class JavametricsMBeanConnector {
 		long usedHeap = MemoryPoolDataProvider.getHeapMemory();
 		if (usedHeapAfterGC >= 0) { // check that some data is available
 			StringBuilder message = new StringBuilder();
-			message.append("{\"topic\": \"memoryPools\", \"payload\": {\"time\":\"");
+			message.append("{\"time\":\"");
 			message.append( timeStamp);
 			message.append("\", \"usedHeapAfterGC\": \"");
 			message.append(usedHeapAfterGC);
@@ -91,7 +91,7 @@ public class JavametricsMBeanConnector {
 			message.append("\", \"usedNative\": \"");
 			message.append(usedNative);
 			message.append("\"}}");
-			javametricsAgentConnector.sendDataToAgent(message.toString());
+	        Javametrics.sendJSON(MEMORYPOOLS_TOPIC, message.toString());
 		}
 	}
 }

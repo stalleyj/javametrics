@@ -77,13 +77,13 @@ Returns true if the given topic is enabled
 
  * **Parameters:** `topicName` — the name of the topic
  
-#### `public void addListener(JavametricsListener jml)`
+#### `public static void addListener(JavametricsListener jml)`
 
 Add a JavametricsListener, which will be informed of Javametrics events
 
  * **Parameters:** `jml` — the JavametricsListener to be added
 
-#### `protected boolean removeListener(JavametricsListener jml)`
+#### `public static boolean removeListener(JavametricsListener jml)`
 
 Remove a JavametricsListener
 
