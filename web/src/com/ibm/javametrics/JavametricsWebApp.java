@@ -29,14 +29,12 @@ public class JavametricsWebApp implements JavametricsListener {
 
 	private Set<Session> openSessions = new HashSet<>();
 	
-	private JavametricsAgentConnector connector;
-
 	private HttpDataAggregator aggregateHttpData;
 
 	public JavametricsWebApp() {
 		super();
-		this.connector = new JavametricsAgentConnector(this);
 		this.aggregateHttpData = new HttpDataAggregator();
+		Javametrics.addListener(this);
 	}
 
 	@OnOpen
