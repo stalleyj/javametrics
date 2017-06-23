@@ -7,3 +7,4 @@
 [submodule "web/WebContent/graphmetrics"]
 	path = web/WebContent/graphmetrics
 	url = git@github.ibm.com:runtimes/graphmetrics.git
+	branch = master
