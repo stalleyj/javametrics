@@ -35,15 +35,12 @@ public class JavametricsWebApp implements JavametricsListener {
 
 	public JavametricsWebApp() {
 		super();
-		System.out.println("starting websocket");
 		this.connector = new JavametricsAgentConnector(this);
 		this.aggregateHttpData = new HttpDataAggregator();
 	}
 
 	@OnOpen
 	public void open(Session session) {
-		System.err.println("open called");
-		System.err.println("Sub protocol is: " + session.getNegotiatedSubprotocol());
 		try {
 			session.getBasicRemote().sendText(
 					"{\"topic\": \"title\", \"payload\": {\"title\":\"Application Metrics for Java\", \"docs\": \"http://github.com/RuntimeTools/javametrics\"}}");
@@ -55,18 +52,15 @@ public class JavametricsWebApp implements JavametricsListener {
 
 	@OnClose
 	public void close(Session session) {
-		System.err.println("close called");
 		openSessions.remove(session);
 	}
 
 	@OnError
 	public void onError(Throwable error) {
-		System.err.println("error called");
 	}
 
 	@OnMessage
 	public void handleMessage(String message, Session session) {
-		System.err.println("handleMessage called with: " + message);
 	}
 
 	public void emit(String message) {
@@ -74,7 +68,6 @@ public class JavametricsWebApp implements JavametricsListener {
 			try {
 				if (session.isOpen()) {
 					session.getBasicRemote().sendText(message);
-//					System.err.println("sending " + message);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -86,12 +79,11 @@ public class JavametricsWebApp implements JavametricsListener {
 		HttpDataAggregator httpData;
 		String httpUrlData;
 		synchronized (aggregateHttpData) {
-			if (aggregateHttpData.total == 0) {
-				return;
+            httpData = aggregateHttpData.getCurrent();
+            if (aggregateHttpData.total == 0) {
+			    httpData.time = System.currentTimeMillis();
 			}
-			httpData = aggregateHttpData.getCurrent();
-			httpUrlData = aggregateHttpData.urlDatatoJsonString();
-			
+            httpUrlData = aggregateHttpData.urlDatatoJsonString();		
 			aggregateHttpData.clear();	
 		}
 		emit(httpData.toJsonString());
@@ -148,7 +140,6 @@ public class JavametricsWebApp implements JavametricsListener {
 	public void receive(String pluginName, String data) {
 		if (pluginName.equals("api")) {
 			List<String> split = splitIntoJSONObjects(data);
-			//System.out.println("data = " + data.toString());
 			for (Iterator<String> iterator = split.iterator(); iterator.hasNext();) {
 				String jsonStr = iterator.next();
 				JsonReader jsonReader = Json.createReader(new StringReader(jsonStr));
