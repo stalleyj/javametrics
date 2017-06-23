@@ -25,29 +25,28 @@ public interface Topic
 
 	/**
 	 * Send a message (sends if enabled)
-	 * @param message
+	 * @param message the message to be emitted
 	 */
 	public void send(String message);
 	
 	/**
 	 * Send a message with a start and end time (sends if enabled)
-	 * @param startTime
-	 * @param endTime
-	 * @param message
+	 * @param startTime start time in milliseconds (see System.currentTimeMillis for definition)
+	 * @param endTime end time in milliseconds (see System.currentTimeMillis for definition)
+	 * @param message the message to be emitted
 	 */
 	public void send(long startTime, long endTime, String message);
 	
 	/**
 	 * Send a timed event with a start and end time (sends if enabled)
-	 * @param startTime
-	 * @param endTime
-	 * @param message
+	 * @param startTime start time in milliseconds (see System.currentTimeMillis for definition)
+	 * @param endTime end time in milliseconds (see System.currentTimeMillis for definition)
 	 */
 	public void send(long startTime, long endTime);
 	
 	/**
 	 * Send a JSON formatted String
-	 * @param payload
+	 * @param payload A JSON object formatted as a String
 	 */
 	public void sendJSON(String payload);
 
@@ -63,8 +62,7 @@ public interface Topic
 	public void enable();
 
 	/**
-	 * Returns true if this topic is enabled
-	 * @return
+	 * @return true if this topic is enabled
 	 */
 	public boolean isEnabled();
 
