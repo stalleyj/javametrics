@@ -37,24 +37,8 @@ public class JavametricsAgentConnector {
 	
 	private List<JavametricsListener> javametricsListeners = new ArrayList<JavametricsListener>();
 	
-	public JavametricsAgentConnector(JavametricsListener jml) {
-		super();
-
-		this.javametricsListeners.add(jml);
-
+	public JavametricsAgentConnector() {
 		regListener(this);
-
-		sendMessage("datasources", CLIENT_ID);//$NON-NLS-1$
-
-		// request the agent to send us current history (flight recorder)
-		sendMessage("history", CLIENT_ID);//$NON-NLS-1$
-
-		// Need to request the method dictionary
-		sendMessage("methoddictionary", "");//$NON-NLS-1$
-		
-		Javametrics.registerJavametricsAgentConnector(this);
-
-		new JavametricsMBeanConnector(this);
 	}
 
 	private void sendMessage(String name, String command, String... params) {
@@ -68,10 +52,10 @@ public class JavametricsAgentConnector {
 	}
 
 	public void receiveData(String type, byte[] data) {
-		// System.out.println("type is " + type);
+	    final String dataString = new String(data);
 		for (Iterator<JavametricsListener> iterator = javametricsListeners.iterator(); iterator.hasNext();) {
 			JavametricsListener javametricsListener = iterator.next();
-			javametricsListener.receive(type, new String(data));
+			javametricsListener.receive(type, dataString);
 		}
 	}
 
@@ -79,11 +63,15 @@ public class JavametricsAgentConnector {
 		javametricsListeners.add(jml);
 	}
 
-	protected boolean removeListener(JavametricsListener jml) {
+    protected boolean removeListener(JavametricsListener jml) {
 		return javametricsListeners.remove(jml);
 	}
 	
 	protected void sendDataToAgent(String data) {
 		pushDataToAgent(data);
+	}
+	
+	protected void send(String message) {
+	    sendMessage(message, CLIENT_ID);
 	}
 }

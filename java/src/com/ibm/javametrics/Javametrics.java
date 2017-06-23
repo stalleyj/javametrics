@@ -23,8 +23,17 @@ import java.util.HashMap;
  */
 public class Javametrics {
 
+    /*
+     * Connect to the native agent
+     */
+    private static JavametricsAgentConnector javametricsAgentConnector = new JavametricsAgentConnector();
+
+    /*
+     * Start the mbean data providers
+     */
+    static JavametricsMBeanConnector jmbc = new JavametricsMBeanConnector();
+    
 	private static HashMap<String, Topic> topics = new HashMap<String, Topic>();
-	private static JavametricsAgentConnector javametricsAgentConnector;
 
 	/**
 	 * Get a Topic to send data on. If a topic with the given name already
@@ -44,10 +53,6 @@ public class Javametrics {
 			topics.put(topicName, topic);
 			return topic;
 		}
-	}
-
-	protected static void registerJavametricsAgentConnector(JavametricsAgentConnector javametricsAgentConnector) {
-		Javametrics.javametricsAgentConnector = javametricsAgentConnector;
 	}
 
 	protected static void sendData(String data) {
@@ -91,11 +96,16 @@ public class Javametrics {
 	 * Add a JavametricsListener, which will be informed of Javametrics events
 	 * @param jml the JavametricsListener to be added
 	 */
-	public void addListener(JavametricsListener jml) {
+	public static void addListener(JavametricsListener jml) {
 		if (javametricsAgentConnector == null) {
 			throw new JavametricsException("Javametrics has not yet been initialised, cannot add listener");
 		}
 		javametricsAgentConnector.addListener(jml);
+		
+		/*
+		 * Request history data so new listeners receive the environment data
+		 */
+	    javametricsAgentConnector.send("history");
 	}
 
 	/**
@@ -103,11 +113,11 @@ public class Javametrics {
 	 * @param jml the JavametricsListener to be removed
 	 * @return true if the listener was registered
 	 */
-	protected boolean removeListener(JavametricsListener jml) {
+	public static boolean removeListener(JavametricsListener jml) {
 		if (javametricsAgentConnector == null) {
 			throw new JavametricsException("Javametrics has not yet been initialised, cannot add listener");
 		}
 		return javametricsAgentConnector.removeListener(jml);
 	}
-	
+
 }
