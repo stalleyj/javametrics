@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="javametrics.java" default="build.jar" basedir=".">
+
+    <property name="output.dir" value="${basedir}/build/output" />
+    <property name="java.dir" value="${basedir}/src" />
+    <property name="classes.dir" value="${basedir}/build/classes" />
+
+
+    <target name="compile.java">
+        <mkdir dir="${basedir}/build/classes" />
+        <javac srcdir="${java.dir}" destdir="${classes.dir}" debug="on" source="1.8" includeantruntime="false">
+            <classpath>
+                <fileset dir="${basedir}/lib/asm/">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="build.jar" depends="compile.java">
+        <jar file="${output.dir}/javametrics.jar" manifest="${basedir}/META-INF/MANIFEST.MF" basedir="${classes.dir}" />
+    </target>
+
+</project>

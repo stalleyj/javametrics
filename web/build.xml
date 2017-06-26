@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="javametrics.web" default="build.war" basedir=".">
+
+    <property name="output.dir" value="${basedir}/build/output" />
+    <property name="java.dir" value="${basedir}/src" />
+    <property name="classes.dir" value="${basedir}/build/classes" />
+    <property name="web.dir" value="${basedir}" />
+
+
+    <!-- TODO - Make sure liberty.dir can be specified, do we build javametrics.jar or use a prebuilt one? -->
+    <property name="liberty.dir" value="../../wlp/dev/api" />
+    <property name="javametrics.lib" value="../java/build/output/javametrics.jar" />
+
+    <target name="compile.java">
+        <mkdir dir="${basedir}/build/classes" />
+        <javac srcdir="${java.dir}" destdir="${classes.dir}" debug="on" source="1.8" includeantruntime="false">
+            <classpath>
+                <fileset dir="${liberty.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <pathelement location="${javametrics.lib}" />
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="build.war" depends="compile.java">
+        <war file="${output.dir}/javametrics.war" webxml="${basedir}/WebContent/WEB-INF/web.xml">
+            <fileset dir="${web.dir}/WebContent">
+                <include name = "**/*.*"/>
+            </fileset>
+
+            <classes dir = "${classes.dir}"/>
+        </war>
+    </target>
+
+</project>
