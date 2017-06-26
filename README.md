@@ -17,7 +17,7 @@ The following data collection sources are built-in:
 ### Prerequisites
 
 The Application Metrics for Java agent requires Java version 8.
-Application Servers supported are WebSphere Liberty or ...
+Application Servers supported are WebSphere Liberty or TODO
 
 <a name="install"></a>
 ### Installation
@@ -27,9 +27,10 @@ This contains:
 * `javametrics.war` - Javametrics Web Application
 * `javametrics.jar` - Javametrics agent
 * `javametrics.so/dll/dylib`, `apiplugin.so/dll/dylib` and `envplugin.so/dll/dylib` - Javametrics native agent
+* `javametrics.properites` - Javametrics configuration file
 
 #### Installing into Websphere Liberty
-Unpack the `.zip` or `.tar.gz` archive that you downloaded in the previous step.  Copy the `javametrics.war` file into your Websphere Liberty 'dropins' directory. 
+Unpack the `.zip` or `.tar.gz` archive that you downloaded in the previous step.  Copy the `javametrics.war` file into your Websphere Liberty 'dropins' directory.
 
 Javametrics also needs two Java options to be set in order to load the agent and the native agent.  A [jvm.options](https://www.ibm.com/support/knowledgecenter/en/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/twlp_admin_customvars.html) file is the best way to configure this for Websphere Liberty and it should contain these two entries on separate lines, where `path_to_install_dir` is replaced with the actual path containing the javametrics files:
 
@@ -42,10 +43,10 @@ Javametrics also needs two Java options to be set in order to load the agent and
 ```
 
 #### Installing into Spring Boot server with embedded Tomcat
-...
+TODO
 
 #### Installing into Apache Tomcat
-...
+TODO
 
 <a name="api-doc"></a>
 ## API Documentation
@@ -166,13 +167,17 @@ Requirements: Visual Studio 2012 or later, a Java 8 SDK and Cygwin
 
 Requirements: gcc and a Java 8 SDK
 
- * TBD
+ * TODO
  
 **Mac**
 
 You need to include two directories in the JAVA_SDK_INCLUDE path, e.g.: export "JAVA_SDK_INCLUDE=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/include/ -I/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/include/darwin/"
 
 `make BUILD=darwin64 clean javametrics`
+
+To build the jar and war files:
+
+TODO
  
 ## Source code
 The source code for Application Metrics for Java is available in the [Javametrics Github project](http:\\github.com\RuntimeTools\javametrics).
