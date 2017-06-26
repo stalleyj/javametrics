@@ -31,7 +31,7 @@ import javax.websocket.server.ServerEndpoint;
  */
 
 @ServerEndpoint(value = "/", subprotocols = "javametrics-dash")
-public class JavametricsWebSocket implements MetricsEmitter {
+public class JavametricsWebSocket implements Emitter {
 
 	private Set<Session> openSessions = new HashSet<>();
 

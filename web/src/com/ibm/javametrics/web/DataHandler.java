@@ -39,7 +39,7 @@ import com.ibm.javametrics.JavametricsListener;
 public class DataHandler implements JavametricsListener {
 
     private static DataHandler instance = null;
-    private Set<MetricsEmitter> emitters = new HashSet<MetricsEmitter>();
+    private Set<Emitter> emitters = new HashSet<Emitter>();
 
     private HttpDataAggregator aggregateHttpData;
 
@@ -54,7 +54,7 @@ public class DataHandler implements JavametricsListener {
         this.aggregateHttpData = new HttpDataAggregator();
     }
 
-    public void addEmitter(MetricsEmitter emitter) {
+    public void addEmitter(Emitter emitter) {
         emitters.add(emitter);
         /*
          * adding as listener has the side effect of sending history which is
@@ -63,18 +63,18 @@ public class DataHandler implements JavametricsListener {
         Javametrics.addListener(this);
     }
 
-    public static void registerEmitter(MetricsEmitter emitter) {
+    public static void registerEmitter(Emitter emitter) {
         getInstance().addEmitter(emitter);
     }
 
-    public void removeEmitter(MetricsEmitter emitter) {
+    public void removeEmitter(Emitter emitter) {
         emitters.remove(emitter);
         if (emitters.isEmpty()) {
             Javametrics.removeListener(this);
         }
     }
 
-    public static void deregisterEmitter(MetricsEmitter emitter) {
+    public static void deregisterEmitter(Emitter emitter) {
         getInstance().removeEmitter(emitter);
     }
 

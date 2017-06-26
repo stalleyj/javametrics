@@ -15,6 +15,6 @@
  ******************************************************************************/
 package com.ibm.javametrics.web;
 
-public interface MetricsEmitter {
+public interface Emitter {
     public void emit(String message);
 }
