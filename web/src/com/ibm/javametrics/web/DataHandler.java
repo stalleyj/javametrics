@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package com.ibm.javametrics;
+package com.ibm.javametrics.web;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -27,6 +27,9 @@ import javax.json.Json;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+
+import com.ibm.javametrics.Javametrics;
+import com.ibm.javametrics.JavametricsListener;
 
 /**
  * Registers as a JavametricsListener to receive metrics data, processes the
