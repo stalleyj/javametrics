@@ -21,57 +21,70 @@ import java.util.Set;
 
 public class JavametricsAgentConnector {
 
-	private static native void regListener(JavametricsAgentConnector jm);
+    private static native void regListener(JavametricsAgentConnector jm);
+    private static native void deregListener();
+    private static native void sendMessage(String message, byte[] id);
+    private static native void pushDataToAgent(String data);
 
-	private static native void deregListener();
 
-	private static native void sendMessage(String message, byte[] id);
+    /*
+     * Set to true when connected to the native agent
+     */
+    private boolean initialized = false;
 
-	private static native void pushDataToAgent(String data);
+    private static final String CLIENT_ID = "localNative";//$NON-NLS-1$
+    private static final String COMMA = ","; //$NON-NLS-1$
+    private static final String DATASOURCE_TOPIC = "/datasource";//$NON-NLS-1$
+    private static final String CONFIGURATION_TOPIC = "configuration/";//$NON-NLS-1$
+    private static final String HISTORY_TOPIC = "/history/";//$NON-NLS-1$
 
-	private static final String CLIENT_ID = "localNative";//$NON-NLS-1$
-	private static final String COMMA = ","; //$NON-NLS-1$
-	private static final String DATASOURCE_TOPIC = "/datasource";//$NON-NLS-1$
-	private static final String CONFIGURATION_TOPIC = "configuration/";//$NON-NLS-1$
-	private static final String HISTORY_TOPIC = "/history/";//$NON-NLS-1$
-	
-	private Set<JavametricsListener> javametricsListeners = new HashSet<JavametricsListener>();
-	
-	public JavametricsAgentConnector() {
-		regListener(this);
-	}
+    private Set<JavametricsListener> javametricsListeners = new HashSet<JavametricsListener>();
+    public JavametricsAgentConnector() {
+        try {
+            regListener(this);
+            initialized = true;
+        } catch (UnsatisfiedLinkError ule) {
+            System.err.println("Javametrics: Native agent not loaded. Use -agentpath parameter to load Javametrics agent.");
+        }
+    }
 
-	private void sendMessage(String name, String command, String... params) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(command);
-		for (String parameter : params) {
-			sb.append(COMMA).append(parameter);
-		}
-		sb.trimToSize();
-		sendMessage(name, sb.toString().getBytes());
-	}
+    private void sendMessage(String name, String command, String... params) {
+        if (initialized) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(command);
+            for (String parameter : params) {
+                sb.append(COMMA).append(parameter);
+            }
+            sb.trimToSize();
+            sendMessage(name, sb.toString().getBytes());
+        }
+    }
 
-	public void receiveData(String type, byte[] data) {
-	    final String dataString = new String(data);
-		for (Iterator<JavametricsListener> iterator = javametricsListeners.iterator(); iterator.hasNext();) {
-			JavametricsListener javametricsListener = iterator.next();
-			javametricsListener.receive(type, dataString);
-		}
-	}
+    public void receiveData(String type, byte[] data) {
+        final String dataString = new String(data);
+        for (Iterator<JavametricsListener> iterator = javametricsListeners.iterator(); iterator.hasNext();) {
+            JavametricsListener javametricsListener = iterator.next();
+            javametricsListener.receive(type, dataString);
+        }
+    }
 
-	protected void addListener(JavametricsListener jml) {
-		javametricsListeners.add(jml);
-	}
+    protected void addListener(JavametricsListener jml) {
+        javametricsListeners.add(jml);
+    }
 
     protected boolean removeListener(JavametricsListener jml) {
-		return javametricsListeners.remove(jml);
-	}
-	
-	protected void sendDataToAgent(String data) {
-		pushDataToAgent(data);
-	}
-	
-	protected void send(String message) {
-	    sendMessage(message, CLIENT_ID);
-	}
+        return javametricsListeners.remove(jml);
+    }
+
+    protected void sendDataToAgent(String data) {
+        if (initialized) {
+            pushDataToAgent(data);
+        }
+    }
+
+    protected void send(String message) {
+        if (initialized) {
+            sendMessage(message, CLIENT_ID);
+        }
+    }
 }

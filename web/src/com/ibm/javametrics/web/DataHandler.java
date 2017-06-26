@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package com.ibm.javametrics;
+package com.ibm.javametrics.web;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -28,6 +28,9 @@ import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
+import com.ibm.javametrics.Javametrics;
+import com.ibm.javametrics.JavametricsListener;
+
 /**
  * Registers as a JavametricsListener to receive metrics data, processes the
  * data and sends the output to any registered emitters
@@ -36,7 +39,7 @@ import javax.json.JsonReader;
 public class DataHandler implements JavametricsListener {
 
     private static DataHandler instance = null;
-    private Set<MetricsEmitter> emitters = new HashSet<MetricsEmitter>();
+    private Set<Emitter> emitters = new HashSet<Emitter>();
 
     private HttpDataAggregator aggregateHttpData;
 
@@ -51,7 +54,7 @@ public class DataHandler implements JavametricsListener {
         this.aggregateHttpData = new HttpDataAggregator();
     }
 
-    public void addEmitter(MetricsEmitter emitter) {
+    public void addEmitter(Emitter emitter) {
         emitters.add(emitter);
         /*
          * adding as listener has the side effect of sending history which is
@@ -60,18 +63,18 @@ public class DataHandler implements JavametricsListener {
         Javametrics.addListener(this);
     }
 
-    public static void registerEmitter(MetricsEmitter emitter) {
+    public static void registerEmitter(Emitter emitter) {
         getInstance().addEmitter(emitter);
     }
 
-    public void removeEmitter(MetricsEmitter emitter) {
+    public void removeEmitter(Emitter emitter) {
         emitters.remove(emitter);
         if (emitters.isEmpty()) {
             Javametrics.removeListener(this);
         }
     }
 
-    public static void deregisterEmitter(MetricsEmitter emitter) {
+    public static void deregisterEmitter(Emitter emitter) {
         getInstance().removeEmitter(emitter);
     }
 
