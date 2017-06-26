@@ -48,12 +48,12 @@ public class JavametricsWebSocket implements MetricsEmitter {
 			e.printStackTrace();
 		}
 		openSessions.add(session);
-        MetricsReceiver.registerEmitter(this);
+        DataHandler.registerEmitter(this);
 	}
 
 	@OnClose
 	public void close(Session session) {
-        MetricsReceiver.deregisterEmitter(this);
+        DataHandler.deregisterEmitter(this);
 		openSessions.remove(session);
 	}
 

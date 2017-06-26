@@ -33,21 +33,21 @@ import javax.json.JsonReader;
  * data and sends the output to any registered emitters
  *
  */
-public class MetricsReceiver implements JavametricsListener {
+public class DataHandler implements JavametricsListener {
 
-    private static MetricsReceiver instance = null;
+    private static DataHandler instance = null;
     private Set<MetricsEmitter> emitters = new HashSet<MetricsEmitter>();
 
     private HttpDataAggregator aggregateHttpData;
 
-    private static MetricsReceiver getInstance() {
+    private static DataHandler getInstance() {
         if (instance == null) {
-            instance = new MetricsReceiver();
+            instance = new DataHandler();
         }
         return instance;
     }
 
-    protected MetricsReceiver() {
+    protected DataHandler() {
         this.aggregateHttpData = new HttpDataAggregator();
     }
 
