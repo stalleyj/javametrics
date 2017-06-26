@@ -15,9 +15,9 @@
  ******************************************************************************/
 package com.ibm.javametrics;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 public class JavametricsAgentConnector {
 
@@ -35,7 +35,7 @@ public class JavametricsAgentConnector {
 	private static final String CONFIGURATION_TOPIC = "configuration/";//$NON-NLS-1$
 	private static final String HISTORY_TOPIC = "/history/";//$NON-NLS-1$
 	
-	private List<JavametricsListener> javametricsListeners = new ArrayList<JavametricsListener>();
+	private Set<JavametricsListener> javametricsListeners = new HashSet<JavametricsListener>();
 	
 	public JavametricsAgentConnector() {
 		regListener(this);

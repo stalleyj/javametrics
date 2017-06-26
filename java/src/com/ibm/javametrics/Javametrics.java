@@ -97,9 +97,6 @@ public class Javametrics {
 	 * @param jml the JavametricsListener to be added
 	 */
 	public static void addListener(JavametricsListener jml) {
-		if (javametricsAgentConnector == null) {
-			throw new JavametricsException("Javametrics has not yet been initialised, cannot add listener");
-		}
 		javametricsAgentConnector.addListener(jml);
 		
 		/*
@@ -114,9 +111,6 @@ public class Javametrics {
 	 * @return true if the listener was registered
 	 */
 	public static boolean removeListener(JavametricsListener jml) {
-		if (javametricsAgentConnector == null) {
-			throw new JavametricsException("Javametrics has not yet been initialised, cannot add listener");
-		}
 		return javametricsAgentConnector.removeListener(jml);
 	}
 
