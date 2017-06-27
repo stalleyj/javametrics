@@ -24,7 +24,7 @@ limitations under the License.
 
     <!-- TODO - Make sure liberty.dir can be specified, do we build javametrics.jar or use a prebuilt one? -->
     <property name="liberty.dir" value="../../wlp/dev/api" />
-    <property name="javametrics.lib" value="../java/build/output/javametrics.jar" />
+    <property name="javametrics.lib" value="../java/build/lib/javametrics.jar" />
 
     <target name="compile.java">
         <mkdir dir="${basedir}/build/classes" />
@@ -38,13 +38,15 @@ limitations under the License.
         </javac>
     </target>
 
-    <target name="build.war" depends="compile.java">
-        <war file="${output.dir}/javametrics.war" webxml="${basedir}/WebContent/WEB-INF/web.xml">
+    <target name="build.war" depends="compile.java" >
+        <delete file="${output.dir}/javametrics.war"/>
+        <war file="${output.dir}/javametrics.war" webxml="${basedir}/WebContent/WEB-INF/web.xml" duplicate="fail">
             <fileset dir="${web.dir}/WebContent">
                 <include name = "**/*.*"/>
+                <!-- Exlude the Eclipse output dir otherwise we get duplicate classes in javametrics.war -->
+                <exclude name = "WEB-INF/classes/"/>
             </fileset>
-
-            <classes dir = "${classes.dir}"/>
+            <classes dir="${classes.dir}"/>
         </war>
     </target>
 
