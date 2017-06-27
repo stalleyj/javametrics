@@ -26,7 +26,6 @@ This contains:
 * `javametrics.war` - Javametrics Web Application
 * `javametrics.jar` - Javametrics agent
 * `javametrics.so/dll/dylib`, `apiplugin.so/dll/dylib` and `envplugin.so/dll/dylib` - Javametrics native agent
-* `javametrics.properites` - Javametrics configuration file
 
 #### Websphere Liberty
 Unpack the `.zip` or `.tar.gz` archive that you downloaded in the previous step.  Copy the `javametrics.war` file into your Websphere Liberty 'dropins' directory.
