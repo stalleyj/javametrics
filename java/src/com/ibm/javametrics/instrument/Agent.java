@@ -15,7 +15,10 @@
  ******************************************************************************/
 package com.ibm.javametrics.instrument;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * Java instrumentation agent
@@ -27,24 +30,73 @@ import java.lang.instrument.Instrumentation;
  */
 public class Agent {
 
-	public static boolean debug = (System.getProperty("com.ibm.javamatrics.javaagent.debug", "false").equals("true"));
+    private static final String CLASSTRANSFORMER_CLASS = "com.ibm.javametrics.instrument.ClassTransformer";
 
-	/**
-	 * Entry point for the agent via -javaagent command line parameter
-	 * 
-	 * @param agentArgs
-	 * @param inst
-	 */
-	public static void premain(String agentArgs, Instrumentation inst) {
-		// Register our class transformer
-		inst.addTransformer(new ClassTransformer());
-	}
+    private static final String JAVAMETRICS_JAR_URL = "javametrics.jar!/";
 
-	/**
-	 * @param agentArgs
-	 * @param inst
-	 */
-	public static void agentmain(String agentArgs, Instrumentation inst) {
-		premain(agentArgs, inst);
-	};
+    private static final String ASM_VERSION = "5.0.4";
+    private static final String ASM_JAR_URL = "asm/asm-" + ASM_VERSION + ".jar!/";
+    private static final String ASM_COMMONS_JAR_URL = "asm/asm-commons-" + ASM_VERSION + ".jar!/";
+
+    public static boolean debug = (System.getProperty("com.ibm.javametrics.javaagent.debug", "false").equals("true"));
+
+    /**
+     * Entry point for the agent via -javaagent command line parameter
+     * 
+     * @param agentArgs
+     * @param inst
+     */
+    public static void premain(String agentArgs, Instrumentation inst) {
+
+        /*
+         * We need to keep the ASM jars off the bootclasspath so we will load
+         * our ClassTransformer with our own classloader so that subsequent load
+         * of ASM classes are from our packaged jars
+         */
+        try {
+            /*
+             * Determine the url to our jar lib folder
+             */
+            String jarUrl = (Agent.class.getResource("Agent.class").toString());
+            String libUrl = jarUrl.substring(0, jarUrl.indexOf(JAVAMETRICS_JAR_URL));
+
+            URL[] urls = { new URL(libUrl + JAVAMETRICS_JAR_URL), new URL(libUrl + ASM_JAR_URL),
+                    new URL(libUrl + ASM_COMMONS_JAR_URL) };
+            URLClassLoader ucl = new URLClassLoader(urls) {
+
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see java.lang.ClassLoader#loadClass(java.lang.String)
+                 * 
+                 * Find class from our jars first before delegating to parent
+                 */
+                @Override
+                public Class<?> loadClass(String name) throws ClassNotFoundException {
+                    try {
+                        return findClass(name);
+                    } catch (ClassNotFoundException cnf) {
+                    }
+                    return super.loadClass(name);
+                }
+            };
+            Class<?> cl = ucl.loadClass(CLASSTRANSFORMER_CLASS);
+
+            // Register our class transformer
+            inst.addTransformer((ClassFileTransformer) cl.newInstance());
+
+        } catch (NoClassDefFoundError ncdfe) {
+            System.err.println("Javametrics: Unable to start javaagent: " + ncdfe);
+        } catch (Exception e) {
+            System.err.println("Javametrics: Unable to start javaagent: " + e);
+        }
+    }
+
+    /**
+     * @param agentArgs
+     * @param inst
+     */
+    public static void agentmain(String agentArgs, Instrumentation inst) {
+        premain(agentArgs, inst);
+    };
 }
