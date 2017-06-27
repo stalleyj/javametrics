@@ -180,7 +180,7 @@ To build the jar and war files:
 TODO
  
 ## Source code
-The source code for Application Metrics for Java is available in the [Javametrics Github project](http:\\github.com\RuntimeTools\javametrics).
+The source code for Application Metrics for Java is available in the [Javametrics Github project](http://github.com/RuntimeTools/javametrics).
 
 ## License
 This project is released under an Apache 2.0 open source license.  
