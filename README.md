@@ -21,14 +21,14 @@ The Application Metrics for Java agent requires Java version 8.
 <a name="install"></a>
 ### Installation
 
-Download the latest Application Metrics for Java release from [Github](http://github.com/runtimetools/javametrics/releases)
+Download the latest Application Metrics for Java release from [Github](http://github.com/runtimetools/javametrics/releases).
 This contains:
 * `javametrics.war` - Javametrics Web Application
 * `javametrics.jar` - Javametrics agent
 * `javametrics.so/dll/dylib`, `apiplugin.so/dll/dylib` and `envplugin.so/dll/dylib` - Javametrics native agent
 
 #### Websphere Liberty
-Unpack the `.zip` or `.tar.gz` archive that you downloaded in the previous step.  Copy the `javametrics.war` file into your Websphere Liberty 'dropins' directory.
+Unpack the `.zip` or `.tar.gz` archive that you downloaded in the previous step.  Copy the `javametrics.war` file into your [Websphere Liberty](https://developer.ibm.com/wasdev/websphere-liberty/) 'dropins' directory.
 
 Javametrics also needs two Java options to be set in order to load the agent and the native agent.  A [jvm.options](https://www.ibm.com/support/knowledgecenter/en/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/twlp_admin_customvars.html) file is the best way to configure this for Websphere Liberty and it should contain these two entries on separate lines, where `path_to_install_dir` is replaced with the actual path containing the javametrics files:
 
@@ -52,8 +52,8 @@ Coming soon
 ## API Documentation
 
 Javametrics can be used to send and receive generic monitoring data from your application, as well as to enable or disable existing types of data.
-
-### `public class Javametrics`
+___
+#### `public class Javametrics`
 
 Javametrics public API class. Used to create Topics which can send data to Javametrics. JSON formatted data can also be sent directly using sendJSON.
 
@@ -91,7 +91,8 @@ Remove a JavametricsListener
  * **Parameters:** `jml` — the JavametricsListener to be removed
  * **Returns:** true if the listener was registered
  
-### `public interface Topic`
+___
+#### `public interface Topic`
 
 A Javametrics topic on which data can be emitted. Create a new topic by calling Javametrics.createTopic(..) Topics created this way are registered with the Javametrics agent and are 'on' by default.
 
@@ -136,7 +137,8 @@ Enable this topic
 
  * **Returns:** true if this topic is enabled
  
-### `public interface JavametricsListener`
+___
+#### `public interface JavametricsListener`
 
 A listener to Javametrics events
 
@@ -151,7 +153,7 @@ Receive data from the Javametrics agent
 <a name="building"></a>
 ## Building from source
 
-To build the native agent:
+### To build the native agent:
 
  **Windows**
 
@@ -177,7 +179,7 @@ Requirements: Xcode and a Java 8 JDK
  * You need to include two directories in the JAVA_SDK_INCLUDE path, e.g.: export "JAVA_SDK_INCLUDE=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/include/ -I/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/include/darwin/"
  * `make BUILD=darwin64 clean javametrics`
  
-To build the jar and war files:
+### To build the jar and war files:
 
 **All platforms**
 
@@ -196,5 +198,3 @@ This project uses a semver-parsable X.0.Z version number for releases, where X i
 
 ## Version
 0.0.0
-
-## Release History
