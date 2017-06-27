@@ -102,17 +102,19 @@
 <script>
     let hostname = location.host;
     let pathname = location.pathname
-    
-    let client = new WebSocket("ws://" + hostname + pathname,"javametrics-dash")
+
+    var webSocketProtocol = "ws://"
+    if(location.protocol === "https:") {
+      webSocketProtocol = "wss://"
+    }
+
+    let client = new WebSocket(webSocketProtocol + hostname + pathname,"javametrics-dash")
 
     client.onmessage = function(message) {
-        console.log("Message received: " + message.data);
         received = JSON.parse(message.data);
         topic = received.topic;
         payload = JSON.stringify(received.payload);
 
-
-        console.log(topic);
         switch (topic) {
             case 'cpu':
                 updateCPUData(payload);
