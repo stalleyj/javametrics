@@ -149,6 +149,7 @@ Receive data from the Javametrics agent
  * **Parameters:**
    * `pluginName` — - the plugin that sent the data
    * `data` — - the data as a String
+___
 
 <a name="building"></a>
 ## Building from source
