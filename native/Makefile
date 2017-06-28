@@ -25,7 +25,7 @@ default: all
 #do not change the position of this include
 #include ${BUILD}.mk
 
-${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT}	: ${JAVA_OBJS} 
+${JAVA_OUT}/${LIB_PREFIX}javametrics.${LIB_EXT}	: ${JAVA_OBJS}
 
 
 
@@ -44,7 +44,12 @@ all: setup
 #Libraries
 #-------------------------------------------------------------------------------------------
 
-${JAVA_OUT}/javametrics.o:
+JAVAMETRICS_REVISON = $(shell git rev-parse --short HEAD)
+
+${JAVAMETRICS_SRC}/version.h :
+	@echo "#define JAVAMETRICS_REVISON \"$(JAVAMETRICS_REVISON)\"" > ${JAVAMETRICS_SRC}/version.h
+
+${JAVA_OUT}/javametrics.o: ${JAVAMETRICS_SRC}/version.h
 	${CC} ${INCS} -I./omr-agentcore/src -I${JAVA_PLAT_INCLUDE} ${CFLAGS} -D${PLATFORM} ${OBJOPT} ${JAVAMETRICS_SRC}/javametrics.cpp
 
 ${JAVA_OUT}/JVMTIMemoryManager.o: 
@@ -74,6 +79,7 @@ ${OUTPUT}:
 
 clean:
 	rm -fr ${OUTPUT}
+	rm -f ${JAVAMETRICS_SRC}/version.h
 	cd ./omr-agentcore; rm -fr ${OUTPUT}
 
 javametrics: jm

@@ -36,6 +36,8 @@
 #include "ibmras/common/port/Process.h"
 #include "ibmras/vm/java/JVMTIMemoryManager.h"
 
+#include "version.h"
+
 struct __jdata;
 
 #include "jvmti.h"
@@ -134,7 +136,8 @@ Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
 		rc = initialiseAgent(vm, options, reserved, 0);
 		agentStarted=true;
 	}
-
+	std::cout << "Application Metrics for Java - Agent revision "
+			<< JAVAMETRICS_REVISON << "\n" << std::flush;
 	IBMRAS_DEBUG_1(debug, "< Agent_OnLoad. rc=%d",
 			rc); 
 	return rc;
