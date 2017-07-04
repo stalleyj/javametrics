@@ -20,6 +20,7 @@ package com.ibm.javametrics.instrument;
  *
  */
 public class HttpRequestTracker {
+<<<<<<< HEAD
 	private long requestTime;
 	private int requestDepth;
 
@@ -52,4 +53,38 @@ public class HttpRequestTracker {
 	public boolean decrement() {
 		return (--requestDepth > 0);
 	}
+=======
+    private long requestTime;
+    private int requestDepth;
+
+    /**
+     * Initialize request time and depth
+     */
+    public HttpRequestTracker() {
+        requestTime = System.currentTimeMillis();
+        requestDepth = 0;
+    }
+
+    public long getRequestTime() {
+        return requestTime;
+    }
+
+    public int getRequestDepth() {
+        return requestDepth;
+    }
+
+    /**
+     * Increment nesting depth
+     */
+    public void increment() {
+        requestDepth += 1;
+    }
+
+    /**
+     * @return true if still nested
+     */
+    public boolean decrement() {
+        return (--requestDepth > 0);
+    }
+>>>>>>> 788e9f57cffe1a428784683542f66e5918ad303b
 }

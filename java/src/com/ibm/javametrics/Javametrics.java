@@ -15,12 +15,17 @@
  ******************************************************************************/
 package com.ibm.javametrics;
 
+<<<<<<< HEAD
 import java.util.HashMap;
+=======
+import com.ibm.javametrics.impl.JavametricsImpl;
+>>>>>>> 788e9f57cffe1a428784683542f66e5918ad303b
 
 /**
  * Javametrics public API class. Used to create Topics which can send data to
  * Javametrics. JSON formatted data can also be sent directly using sendJSON.
  */
+<<<<<<< HEAD
 public class Javametrics {
 
     /*
@@ -113,5 +118,58 @@ public class Javametrics {
 	public static boolean removeListener(JavametricsListener jml) {
 		return javametricsAgentConnector.removeListener(jml);
 	}
+=======
+public interface Javametrics {
+
+    public static Javametrics instance = new JavametricsImpl();
+
+    public static Javametrics getInstance() {
+        return instance;
+    }
+
+    /**
+     * Get a Topic to send data on. If a topic with the given name already
+     * exists then that will be returned to you
+     * 
+     * @param topicName
+     * @return a {@link Topic} with the given name
+     */
+    public Topic getTopic(String topicName);
+
+    /**
+     * Returns true if the given topic is enabled
+     * 
+     * @param topicName
+     * @return
+     */
+    public boolean isEnabled(String topicName);
+
+    /**
+     * Send data to Javametrics
+     * 
+     * @param topicName
+     *            the name of the topic to send data on
+     * @param payload
+     *            A JSON object formatted as a String
+     */
+    public void sendJSON(String topicName, String payload);
+
+    /**
+     * Add a JavametricsListener, which will be informed of Javametrics events
+     * 
+     * @param jml
+     *            the JavametricsListener to be added
+     */
+    public void addListener(JavametricsListener jml);
+
+    /**
+     * Remove a JavametricsListener
+     * 
+     * @param jml
+     *            the JavametricsListener to be removed
+     * @return true if the listener was registered
+     */
+    public boolean removeListener(JavametricsListener jml);
+>>>>>>> 788e9f57cffe1a428784683542f66e5918ad303b
 
 }

@@ -60,7 +60,11 @@ public class DataHandler implements JavametricsListener {
          * adding as listener has the side effect of sending history which is
          * required for any newly registered emitter to see the Environment daya
          */
+<<<<<<< HEAD
         Javametrics.addListener(this);
+=======
+        Javametrics.getInstance().addListener(this);
+>>>>>>> 788e9f57cffe1a428784683542f66e5918ad303b
     }
 
     public static void registerEmitter(Emitter emitter) {
@@ -70,7 +74,11 @@ public class DataHandler implements JavametricsListener {
     public void removeEmitter(Emitter emitter) {
         emitters.remove(emitter);
         if (emitters.isEmpty()) {
+<<<<<<< HEAD
             Javametrics.removeListener(this);
+=======
+            Javametrics.getInstance().removeListener(this);
+>>>>>>> 788e9f57cffe1a428784683542f66e5918ad303b
         }
     }
 

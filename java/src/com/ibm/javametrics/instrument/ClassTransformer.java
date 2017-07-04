@@ -29,6 +29,7 @@ import org.objectweb.asm.ClassWriter;
  */
 public class ClassTransformer implements ClassFileTransformer {
 
+<<<<<<< HEAD
 	/*
 	 * Called during class loading.
 	 * 
@@ -44,5 +45,22 @@ public class ClassTransformer implements ClassFileTransformer {
 		cr.accept(cv, ClassReader.SKIP_FRAMES);
 		return cw.toByteArray();
 	}
+=======
+    /*
+     * Called during class loading.
+     * 
+     * Use ASM to modify class bytecode if necessary using the ClassAdaptor
+     */
+    @Override
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+
+        ClassReader cr = new ClassReader(classfileBuffer);
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES);
+        ClassVisitor cv = new ClassAdapter(cw);
+        cr.accept(cv, ClassReader.SKIP_FRAMES);
+        return cw.toByteArray();
+    }
+>>>>>>> 788e9f57cffe1a428784683542f66e5918ad303b
 
 }

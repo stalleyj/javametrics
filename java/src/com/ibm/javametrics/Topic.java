@@ -48,7 +48,11 @@ public interface Topic
 	 * Send a JSON formatted String
 	 * @param payload A JSON object formatted as a String
 	 */
+<<<<<<< HEAD
 	public void sendJSON(String payload);
+=======
+    public void sendJSON(String payload);
+>>>>>>> 788e9f57cffe1a428784683542f66e5918ad303b
 
 	
 	/**

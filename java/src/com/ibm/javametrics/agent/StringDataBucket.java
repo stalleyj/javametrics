@@ -13,31 +13,27 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package com.ibm.javametrics;
+package com.ibm.javametrics.agent;
 
-/**
- * A listener to Javametrics events
- *
- */
-public interface JavametricsListener {
-<<<<<<< HEAD
-	
-	/**
-	 * Receive data from the Javametrics agent
-	 * @param pluginName - the plugin that sent the data
-	 * @param data - the data as a String
-	 */
-	public void receive(String pluginName, String data);
-=======
+public class StringDataBucket implements Bucket {
 
-    /**
-     * Receive data from the Javametrics agent
-     * 
-     * @param pluginName
-     *            - the plugin that sent the data
-     * @param data
-     *            - the data as a String
-     */
-    public void receive(String pluginName, String data);
->>>>>>> 788e9f57cffe1a428784683542f66e5918ad303b
+    private static final int INITIAL_BUCKET_SIZE = 4 * 1024;
+    private StringBuffer bucket = new StringBuffer(INITIAL_BUCKET_SIZE);
+
+    @Override
+    public int getSize() {
+        return bucket.length();
+    }
+
+    @Override
+    public String empty() {
+        String data = bucket.toString();
+        bucket = new StringBuffer(INITIAL_BUCKET_SIZE);
+        return data;
+    }
+
+    @Override
+    public void pushData(String data) {
+        bucket.append(data);
+    }
 }

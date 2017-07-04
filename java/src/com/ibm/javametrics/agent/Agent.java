@@ -13,31 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package com.ibm.javametrics;
+package com.ibm.javametrics.agent;
 
-/**
- * A listener to Javametrics events
- *
- */
-public interface JavametricsListener {
-<<<<<<< HEAD
-	
-	/**
-	 * Receive data from the Javametrics agent
-	 * @param pluginName - the plugin that sent the data
-	 * @param data - the data as a String
-	 */
-	public void receive(String pluginName, String data);
-=======
+public interface Agent {
+    public void pushData(String type, String data);
 
-    /**
-     * Receive data from the Javametrics agent
-     * 
-     * @param pluginName
-     *            - the plugin that sent the data
-     * @param data
-     *            - the data as a String
-     */
-    public void receive(String pluginName, String data);
->>>>>>> 788e9f57cffe1a428784683542f66e5918ad303b
+    public void command(String command, String... params);
+
+    public void registerReceiver(Receiver receiver);
+
+    public void deregisterReceiver(Receiver receiver);
 }
